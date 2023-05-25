@@ -1,9 +1,8 @@
 # PhyEx Cameras
-Scripts used to operate the cameras on the PhyEx Project
-___
+Scripts and snippets used to operate the cameras on the PhyEx Project
+
 ## Camera calibration
 The aim of camera calibration is to obtain for each of the cameras, the _intrinsic_ and _extrinsic_ parameters in order to obtain images with a maximum-reduced distortion to proceed to the 3D tracking.
-
 
 **Step 0: Camera setup**  
 A prerequisite is the correct alignment of the cameras.  
@@ -33,7 +32,7 @@ with np.load(file_name) as data:
   tvecs = data["tvecs"] # Translation vectors
 ```
 
-**Step 4: Undistort**   
+**Step 4: Undistort**  
 The function `undistort()` of the script `undistort.py` allows to apply the undistortion method of OpenCV with the camera parameters computed before.
 ---
 ## Motion tracking

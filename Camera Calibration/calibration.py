@@ -5,6 +5,9 @@ import os
 
 
 def get_calibration_files():
+    """
+    Get the camera calibration files to .npz format.
+    """
     # Setting up calibration
     pattern_size = (8, 6)  # Number of inners corners of the chessboard used for calibration
     pattern_points = np.zeros((np.prod(pattern_size), 3), np.float32)
@@ -13,7 +16,6 @@ def get_calibration_files():
     obj_points = []
     img_points = []
 
-    # Load calibration images for each camera (1 to 4)
     for i in range (1, 5):
         print(f"Starting analysis of camera {i} frames")
         images = glob.glob(f'calibration_images/cam_{i}_frame_*.jpg')
@@ -36,7 +38,7 @@ def get_calibration_files():
                 # cv2.imwrite(f'chessboard_detection/{fname}', img)  # Uncomment to save the frame with chessboard drawn
 
             # Display the calibration image
-            cv2.imshow('img', img)
+            cv2.imshow('Calibration', img)
             cv2.waitKey(500)
 
         # When all frames are analyzed, compute the camera parameters

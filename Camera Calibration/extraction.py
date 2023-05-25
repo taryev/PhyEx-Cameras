@@ -3,6 +3,9 @@ import os
 
 
 def extract_frames():
+    """
+    Extract frames from videos captured by the 4 cameras
+    """
     # Create VideoCapture objects to read from the video files
     cap1 = cv2.VideoCapture('calibration_videos/video1.mp4')
     cap2 = cv2.VideoCapture('calibration_videos/video2.mp4')

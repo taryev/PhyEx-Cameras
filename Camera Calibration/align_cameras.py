@@ -43,5 +43,5 @@ while True:
 
     # Display the frames in a grid
     grid = cv2.vconcat([cv2.hconcat([frame1, frame2]), cv2.hconcat([frame3, frame4])])
-    cv2.imshow('Grid', grid)
+    cv2.imshow('Camera grid', grid)
     cv2.waitKey(1)
