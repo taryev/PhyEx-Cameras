@@ -32,8 +32,10 @@ with np.load(file_name) as data:
   tvecs = data["tvecs"] # Translation vectors
 ```
 
-**Step 4: Undistort**  
+**Step 4: Undistort**
+
 The function `undistort()` of the script `undistort.py` allows to apply the undistortion method of OpenCV with the camera parameters computed before.
+
 ---
 ## Motion tracking
 *Todo*
