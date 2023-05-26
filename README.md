@@ -36,6 +36,9 @@ with np.load(file_name) as data:
 
 The function `undistort()` of the script `undistort.py` allows to apply the undistortion method of OpenCV with the camera parameters computed before.
 
----
 ## Motion tracking
-*Todo*
+*Todo*  
+
+**Prerequisites:**
+- Download Mediapipe's model bundle in the working directory from [here](https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task)  
+
