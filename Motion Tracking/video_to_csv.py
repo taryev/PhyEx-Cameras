@@ -11,7 +11,8 @@ import numpy as np
 def draw_landmarks_on_image(rgb_image, detection_result):
     """
     Function used to draw landmarks on images
-    Code came from Mediapipe's code examples [https://github.com/googlesamples/mediapipe/blob/cd8753722b4c1052a12e019ededdbdebbbc1a313/examples/pose_landmarker/python/%5BMediaPipe_Python_Tasks%5D_Pose_Landmarker.ipynb]
+    Code came from Mediapipe's code examples
+    [https://github.com/googlesamples/mediapipe/blob/cd8753722b4c1052a12e019ededdbdebbbc1a313/examples/pose_landmarker/python/%5BMediaPipe_Python_Tasks%5D_Pose_Landmarker.ipynb]
     :param rgb_image: Mediapipe image for drawing landmarks
     :param detection_result: PoseLandmarkerResult object
     :return:
@@ -95,6 +96,3 @@ def write_to_csv(video_path: str, output_path: str):
         # Release resources
         video_feed.release()
         cv2.destroyAllWindows()
-
-
-write_to_csv("../YPST.MP4", "outputYPST.csv")
