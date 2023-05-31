@@ -38,8 +38,8 @@ def extract_frames():
         frame_count4 += 1
 
         # If the directory does not exist, create it
-        if not os.path.exists("../calibration_images"):
-            os.makedirs("../calibration_images")
+        if not os.path.exists("calibration_images"):
+            os.makedirs("calibration_images")
 
         # Check if the counter for each file is a multiple of frame_num
         if frame_count1 % frame_num == 0:

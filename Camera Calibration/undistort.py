@@ -25,3 +25,4 @@ def undistort():
                 x, y, w, h = roi
                 dst = dst[y:y+h, x:x+w]
                 cv2.show('Undistorted', dst)
+

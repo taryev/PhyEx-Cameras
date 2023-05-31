@@ -46,8 +46,9 @@ def get_calibration_files():
 
         print(f"Finished analysis of camera {i} frames")
         # Save the camera parameters to a file
-        if not os.path.exists("../calibration_files"):
-            os.makedirs("../calibration_files")
+        if not os.path.exists("calibration_files"):
+            os.makedirs("calibration_files")
         np.savez(f'calibration_files/calibration_cam_{i}.npz', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
         print(f"Calibration data saved to calibration_files/calibration_cam_{i}.npz")
 
+get_calibration_files()
