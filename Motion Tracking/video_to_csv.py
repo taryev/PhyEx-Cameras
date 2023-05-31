@@ -42,7 +42,7 @@ def write_to_csv(video_path: str, output_path: str):
     """
     Function to get landmarks from a video file in a csv file
     :param video_path: Path of the video to be analyzed
-    :param output_path: Path of the csv file
+    :param output_path: Paj:th of the csv file
     :return:
     """
     mp_model_path = 'pose_landmarker_full.task'
@@ -62,6 +62,7 @@ def write_to_csv(video_path: str, output_path: str):
         video_feed = cv2.VideoCapture(video_path)
         csv_file = open(output_path, mode='w')
         csv_writer = csv.writer(csv_file)
+        timestamp = 0
 
         while True:
             ret, image = video_feed.read()
@@ -69,14 +70,15 @@ def write_to_csv(video_path: str, output_path: str):
                 break
             # Convert current frame to Mediapipe's Image object
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            timestamp = int(video_feed.get(cv2.CAP_PROP_POS_MSEC))
-            # mediapipe_timestamp = mp.Timestamp(seconds=timestamp)
+            # timestamp = int(video_feed.get(cv2.CAP_PROP_POS_MSEC))
+
             mp_image = mp.Image(
                 data=np.array(image),
                 image_format=mp.ImageFormat.SRGB
             )
             # Process current image
             detection_result = landmarker.detect_for_video(mp_image, timestamp)
+            timestamp = timestamp+1 # Dirty workaround
             pose_landmarks = detection_result.pose_landmarks  # poseLandmarkerResult object
             keypoints = []
             if pose_landmarks is not None:
