@@ -1,11 +1,12 @@
+import os
+import cv2
+import csv
+import glob
+import numpy as np
 import mediapipe as mp
 from mediapipe import solutions
 from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 from mediapipe.framework.formats import landmark_pb2
-import cv2
-import csv
-import numpy as np
 
 
 def draw_landmarks_on_image(rgb_image, detection_result):
@@ -78,11 +79,11 @@ def write_to_csv(video_path: str, output_path: str):
             )
             # Process current image
             detection_result = landmarker.detect_for_video(mp_image, timestamp)
-            timestamp = timestamp+1 # Dirty workaround
+            timestamp = timestamp+1  # Dirty workaround
             pose_landmarks = detection_result.pose_landmarks  # poseLandmarkerResult object
             keypoints = []
             if pose_landmarks is not None:
-                # TODO : Save to CSV
+                # Save to CSV
                 for landmarks in pose_landmarks:  # landmarks list (33 landmarks)
                     for landmark in landmarks:  # for each landmark object
                         keypoints.append((round(landmark.x, 4), round(landmark.y, 4), round(landmark.z, 4)))
@@ -98,3 +99,30 @@ def write_to_csv(video_path: str, output_path: str):
         # Release resources
         video_feed.release()
         cv2.destroyAllWindows()
+
+
+def get_filename(file_path: str) -> str:
+    """
+    Get only the filename without path and extension
+    :param file_path: File path
+    :return: Filename without extension
+    """
+    file_name: str = os.path.basename(file_path).rsplit('.', 1)[0]
+    return file_name
+
+
+def export(videos_folder: str, csv_path: str):
+    """
+    Export CSVs of videos in a folder
+    :param videos_folder: Path to folder where videos are stored
+    :param csv_path: Folder path for storing generated CSVs
+    :return:
+    """
+    if not os.path.exists(csv_path):
+        os.makedirs(csv_path)
+
+    videos = glob.glob(f'{videos_folder}/*.mp4')
+    videos.sort()
+
+    for video in videos:
+        write_to_csv(video, f'{csv_path}/{get_filename(video)}.csv')
