@@ -18,7 +18,7 @@ def basic_3D(csv_file: str):
     z = []
     num_rows, num_cols = data.shape
     for i in range(0,1):
-        for j in range(0, num_cols, 3):
+        for j in range(0, num_cols, 4):
             x_val = data.iloc[i, j]
             y_val = data.iloc[i, j + 1]
             z_val = data.iloc[i, j + 2]
