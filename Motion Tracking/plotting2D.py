@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def export_plot(csv_file: str):
+def export_plot(csv_file: str, stationary_axis: bool = False):
     """
     Export Matplotlib plot for a CSV file
     :param csv_file: CSV file URL
@@ -48,6 +48,11 @@ def export_plot(csv_file: str):
         # Set labels for the axes
         plt.xlabel('X')
         plt.ylabel('Y')
+
+        # Limit axis range
+        if (stationary_axis):
+            plt.xlim(0.25, 0.70)
+            plt.ylim(-1, 0.25)
 
         # Save plot to file
         plt.savefig(f"2D_plots/_plot_row_{i}.png", format="png")
