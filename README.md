@@ -53,3 +53,14 @@ Here's an example command that you can use for a 24 fps GIF:
 `ffmpeg -r 24 -i plot_row_%d.png -vf "fps=24,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" output.gif`  
 Make sure to run this command in the folder where plots are saved.
 ![YPST GIF](https://cdn.discordapp.com/attachments/907742958135148634/1112729038574862406/output.gif)
+
+## Calculate angles
+
+The script allows to calculate angles while using the id of each interests points you need to describe the function.
+
+For example if you want to calculate the knee angle which is described by the angle between the hip (24), the knee (26) and the ankle (26), 
+you just have to use the function with the name of your file and these three numbers : read_angles_csvs('name_of_csv', 24, 26, 28)
+
+You repeat it for the second CSV with the interests points you need, and at the end you will get a plot with two curves from the two CSV.
+
+![Angles](https://i.ibb.co/WpnWjcY/Angles.png)
