@@ -1,5 +1,4 @@
-import cv2
-import mediapipe as mp
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,16 +10,16 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
     data1 = pd.read_csv(csv1, header=None)
     data2 = pd.read_csv(csv2, header=None)
 
-    angles1=[]
-    angles2=[]
+    angles1 = []
+    angles2 = []
 
-    num_rows1,_=data1.shape
-    num_rows2,_=data2.shape
+    num_rows1, _ = data1.shape
+    num_rows2, _ = data2.shape
     
 
     for j in range (max(num_rows1 , num_rows2)):
         
-        if (j in data1.index and j in data2.index):
+        if(j in data1.index and j in data2.index):
             #We get the coordinates for each csv
             x_a = data1.iloc[j,3 * joint1] 
             y_a = data1.iloc[j,3 * joint1 + 1]
@@ -77,7 +76,7 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
             angle1 = 180 - np.abs(radians1*180.0/np.pi)
             angles1.append(angle1)
 
-        elif j in data2.index :
+        elif j in data2.index:
 
             x_a_2 = data2.iloc[j,3 * joint4] 
             y_a_2 = data2.iloc[j,3 * joint4 + 1]
@@ -96,12 +95,12 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
             angles2.append(angle2)
 
     ax1 = plt.subplot(211)
-    ax1.plot(angles1, color = 'purple')
+    ax1.plot(angles1, color='purple')
     ax1.set_ylabel('Angles')
     ax1.set_title('Angles from the first CSV')
 
     ax2 = plt.subplot(212)
-    ax2.plot(angles2, color = 'orange')
+    ax2.plot(angles2, color='orange')
     ax2.set_ylabel('Angles')
     ax2.set_title('Angles from the second CSV')
 
@@ -109,9 +108,6 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
     plt.tight_layout()
     plt.show()
 
-
-    #plt.yticks(range(0, 150, 10))
-  
 
 #enter the CSV file and the number of the joints which form the ABC triangle 
 read_angles_csvs('1LBR_Victor.csv', 24, 26, 28, '1LBR_Physio.csv', 24, 26, 28)
