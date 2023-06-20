@@ -64,3 +64,9 @@ you just have to use the function with the name of your file and these three num
 You repeat it for the second CSV with the interests points you need, and at the end you will get a plot with two curves from the two CSV.
 
 ![Angles](https://i.ibb.co/WpnWjcY/Angles.png)
+
+We are still working on the interface for calculate angles : 'Interface_Calculate_Angles.py',
+
+To display the curve of an angle selected from any CSV, you first need to select the folder you want to work in and then the file you want to study.
+
+Then select the three points of interest that form the angle and press the button to draw the curve.
