@@ -10,13 +10,21 @@ Window=tk.Tk()
 Label=tk.Label(Window, text= 'Calculate angles')
 Label.pack()
 
-### To chose the file
+### To create buttonFrame
 
 buttonFrame1 = tk.Frame(Window)
 buttonFrame1.pack(side="top", padx=20, pady=20, anchor="nw")
 
 buttonFrame2 = tk.Frame(Window)
 buttonFrame2.pack(side="top", padx=20, pady=20, anchor="nw")
+
+buttonFrame3 = tk.Frame(Window)
+buttonFrame3.pack(side="top", padx=20, pady=20, anchor="nw")
+
+### To chose the file
+
+Label1=tk.Label(buttonFrame1, text= 'Chose the file')
+Label1.pack()
 
 def on_file_selected(event):
 
@@ -47,6 +55,9 @@ folder_combobox['values'] = folders
 
 ### To chose the joint
 
+Label2=tk.Label(buttonFrame2, text= 'Chose the joint by these three points of interest')
+Label2.pack()
+
 selected_joint1 = None
 selected_joint2 = None
 selected_joint3 = None
@@ -76,15 +87,21 @@ menu3 = tk.StringVar(Window)
 menu3.set("Please select the third point of interest")
 
 drop_down_menu_1 = tk.OptionMenu(buttonFrame2, menu1, *list_of_joints, command=select_joint1)
+drop_down_menu_1.config(width=36)
 drop_down_menu_1.pack()
 
 drop_down_menu_2 = tk.OptionMenu(buttonFrame2, menu2, *list_of_joints, command=select_joint2)
+drop_down_menu_2.config(width=36)
 drop_down_menu_2.pack()
 
 drop_down_menu_3 = tk.OptionMenu(buttonFrame2, menu3, *list_of_joints, command=select_joint3)
+drop_down_menu_3.config(width=36)
 drop_down_menu_3.pack()
 
 ### To plot the curve
+
+Label3=tk.Label(buttonFrame3, text= 'Plot the curve')
+Label3.pack()
 
 def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int):
     
@@ -130,7 +147,7 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int):
 def plot():
     read_angles_csvs(file_path, selected_joint1, selected_joint2, selected_joint3 )
 
-bouton = tk.Button(Window, text="Plot the curve of the selected angle", command=plot)
+bouton = tk.Button(buttonFrame3, text="Click here", command=plot)
 bouton.pack()
 
 def close_window():
