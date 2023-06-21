@@ -40,6 +40,8 @@ def on_file_selected(event):
     if selected_folder and selected_file:
         file_path = os.path.join(base_folder_path, selected_folder, selected_file)
 
+### Copy your path for all CSV files here
+
 base_folder_path = "C:\\Users\\33770\\Documents\\Stage_2A\\PhyEx-Cameras\\CSV"
 
 folder_combobox = ttk.Combobox(buttonFrame1, state='readonly', width=20)
