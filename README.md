@@ -31,6 +31,13 @@ with np.load(file_name) as data:
   rvecs = data["rvecs"] # Rotation vectors
   tvecs = data["tvecs"] # Translation vectors
 ```
+or
+```py
+import numpy as np
+file_name = "calibration_files/calibration_cam_X.npz"
+with np.load(file_name) as data:
+    mtx, dist, _, _ = [data[i] for i in ('mtx','dist','rvecs','tvecs')]
+```
 
 **Step 4: Undistort**
 
@@ -70,3 +77,7 @@ We are still working on the interface for calculate angles : 'Interface_Calculat
 To display the curve of an angle selected from any CSV, you first need to select the folder you want to work in and then the file you want to study.
 
 Then select the three points of interest that form the angle and press the button to draw the curve.
+
+## Face anonymization
+
+The `anonymization_student.py` script allow the blurring of the subject face.

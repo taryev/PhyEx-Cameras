@@ -4,7 +4,7 @@ import pandas as pd
 
 def get_blur_radius(distance: int):
     """
-    Get the blur radius for a given distance between nose and ear
+    Get the blur radius for a given distance between nose and ear.
     :param distance:
     :return:
     """
