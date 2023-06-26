@@ -9,9 +9,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 # Variables globales
 file_path1 = ""
 file_path2 = ""
-selected_joint1 = ""
-selected_joint2 = ""
-selected_joint3 = ""
 
 # Fonction appelée lors du clic sur le bouton "Sélectionner un fichier"
 def select_file1():
@@ -26,20 +23,16 @@ def select_file2():
     if file_path2:
         file_button2.configure(text=file_path2)
 
-def select_joint1(event):
-    global selected_joint1
-    selected_joint1 = combobox1.get()
+def select_angle1(event):
+    global selected_angle1
+    selected_angle1 = combobox1.get()
 
-def select_joint2(event):
-    global selected_joint2
-    selected_joint2 = combobox2.get()
-
-def select_joint3(event):
-    global selected_joint3
-    selected_joint3 = combobox3.get()
+def select_angle2(event):
+    global selected_angle2
+    selected_angle2 = combobox2.get()
 
 def get_plot():
-    
+
     def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2 : str,joint4 : int, joint5 : int, joint6 : int):
         
         #Read the CSV
@@ -152,7 +145,34 @@ def get_plot():
         espace.pack()
         canvas.get_tk_widget().pack()
 
-    read_angles_csvs(file_path1, int(selected_joint1), int(selected_joint2), int(selected_joint3), file_path2,int(selected_joint1), int(selected_joint2), int(selected_joint3))
+    def get_points_of_interest(excel):
+
+        selected_joint1 = []
+        selected_joint2 = []
+        selected_joint3 = []
+        selected_joint4 = []
+        selected_joint5 = []
+        selected_joint6 = []
+
+        data=pd.read_excel(excel)
+        
+        angles=['right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
+        for i,angle in enumerate(angles):
+            if selected_angle1==angle:
+                selected_joint1=data.iloc[i,1]
+                selected_joint2=data.iloc[i,2]
+                selected_joint3=data.iloc[i,3]
+
+            if selected_angle2==angle:
+                selected_joint4=data.iloc[i,1]
+                selected_joint5=data.iloc[i,2]
+                selected_joint6=data.iloc[i,3]
+
+        return selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6
+            
+    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:\\Users\\33770\\Documents\\Stage_2A\\Joints.xlsx')
+    
+    read_angles_csvs(file_path1, int(selected_joint1), int(selected_joint2), int(selected_joint3), file_path2,int(selected_joint4), int(selected_joint5), int(selected_joint6))
 
 def get_DTW():
     def dtw_distance(angles1, angles2):
@@ -183,7 +203,7 @@ def get_DTW():
 # Create the main window
 window = ctk.CTk()
 window.title("Interface Physical Rehabilitation")
-window.geometry("800x600")
+window.geometry("800x650")
 
 
 # Create the widgets
@@ -192,16 +212,16 @@ file_button2 = ctk.CTkButton(window, text="Select the second file", command=sele
 
 
 #Espace
-
 espace = ctk.CTkLabel(window, text=" ")
 
 
 # Create the combobox to select the joints
-joints=['0','1', '2','3','4','5', '6','7','8','9', '10','11','12','13', '14','15', '16','17', '18','19','20','21', '22','23','24','25', '26','27','28','29', '30','31', '32']
+angles=['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
 
-combobox1 = ctk.CTkComboBox(window, values=joints, button_color= 'orange',command=select_joint1)
-combobox2 = ctk.CTkComboBox(window, values=joints, button_color= 'orange',command=select_joint2)
-combobox3 = ctk.CTkComboBox(window, values=joints, button_color= 'orange',command=select_joint3)
+combobox1 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle1)
+combobox2 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle2)
+
+
 
 #Button to plot the curve
 get_plot_button = ctk.CTkButton(window, text="Plot the curve", command=get_plot)
@@ -219,8 +239,6 @@ file_button2.pack(padx=5,pady=10)
 combobox1.pack(padx=5,pady=10)
 
 combobox2.pack(padx=5,pady=10)
-
-combobox3.pack(padx=5,pady=10)
 
 
 # Bouton pour récupérer les valeurs avant le mainloop
