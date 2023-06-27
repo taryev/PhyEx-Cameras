@@ -36,8 +36,17 @@ def get_plot():
     def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2 : str,joint4 : int, joint5 : int, joint6 : int):
         
         #Read the CSV
-        data1 = pd.read_csv(csv1, header=None)
-        data2 = pd.read_csv(csv2, header=None)
+
+        if csv1[-3:]=='csv':
+            data1 = pd.read_csv(csv1, header=None)
+        elif csv1[-3:]=='lsx':
+            data1 = pd.read_excel(csv1, header=None)
+        
+        if csv2[-3:]=='csv':
+            data2 = pd.read_csv(csv2, header=None)
+        elif csv2[-3:]=='lsx':
+            data2 = pd.read_excel(csv2, header=None)
+        
 
         global angles1
         angles1 = []
@@ -170,7 +179,7 @@ def get_plot():
 
         return selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6
             
-    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:\\Users\\33770\\Documents\\Stage_2A\\Joints.xlsx')
+    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('Joints.xlsx')
     
     read_angles_csvs(file_path1, int(selected_joint1), int(selected_joint2), int(selected_joint3), file_path2,int(selected_joint4), int(selected_joint5), int(selected_joint6))
 
