@@ -9,6 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Variables globales
 file_path1 = ""
+canvas = ""
 
 # Fonction appelée lors du clic sur le bouton "Sélectionner un fichier"
 def select_file1():
@@ -28,7 +29,9 @@ def select_angle2(event):
 def get_plot():
 
     def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2 : str,joint4 : int, joint5 : int, joint6 : int):
-        
+        global canvas
+        if canvas:
+            canvas.get_tk_widget().pack_forget()
         
         if csv1[-3:]=='csv':
             data1 = pd.read_csv(csv1, header=None)
@@ -172,26 +175,29 @@ def get_plot():
 
         return selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6
             
-    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:\\Users\\33770\\Documents\\Stage_2A\\PhyEx-Cameras\\Joints_List.xlsx')
+    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:/Users/33770/Documents/Stage_2A/PhyEx-Cameras/Joints_List.xlsx')
     
-    informations=file_path1.split("/")
-    name=informations[len(informations)-1]
-    informations2=name.split("_")
-    exercise_name=informations2[0]
-    number=informations2[5]
-    number=number[:1]
-    
-    path_physio='C:/Users/33770/Documents/Stage_2A/PhyEx-Cameras/CSV/CSV_Physio'
-    
-    for file in os.listdir(path_physio):
-        informations_file2=file.split("_")
-        exercise_name2=informations_file2[0]
-        number2=informations_file2[5]
-        number2=number2[:1]
-        if exercise_name2==exercise_name and number2==number:
-            file_path2=file
+    def get_matching_physio_file(file_path):
+        informations = file_path.split("/")
+        name = informations[len(informations) - 1]
+        informations2 = name.split("_")
+        exercise_name = informations2[0]
+        number = informations2[5]
+        number = number[:1]
 
-    file_path2_test=os.path.join(path_physio, file_path2)
+        path_physio = 'C:/Users/33770/Documents/Stage_2A/PhyEx-Cameras/CSV/CSV_Physio'
+
+        for file in os.listdir(path_physio):
+            informations_file2 = file.split("_")
+            exercise_name2 = informations_file2[0]
+            number2 = informations_file2[5]
+            number2 = number2[:1]
+            if exercise_name2 == exercise_name and number2 == number:
+                return os.path.join(path_physio, file)
+
+        return ""
+    
+    file_path2_test=get_matching_physio_file(file_path1)
 
     read_angles_csvs(file_path1, int(selected_joint1), int(selected_joint2), int(selected_joint3), file_path2_test, int(selected_joint4), int(selected_joint5), int(selected_joint6))
 
@@ -268,6 +274,3 @@ window.protocol("WM_DELETE_WINDOW", close_window)
 
 # Exécution de la boucle principale
 window.mainloop()
-
-
-
