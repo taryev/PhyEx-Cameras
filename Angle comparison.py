@@ -78,6 +78,8 @@ def extraire_colonnes_csv(file, colonnes):
 
 extraire_colonnes_csv(r"C:\Users\Salomé\Desktop\STAGE M1\OLDL_1684851718_ID_1_salome_cam_4.csv", ['AH', 'AI', 'BR', 'BS', 'CD', 'CE'])
 
+#code doesnt work, colomn extraction not ok.
+
 
 
 
