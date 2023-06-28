@@ -126,7 +126,7 @@ for file_name in list_files:
 
     # instead of my ath for the Physio CSV, give your path file and the number of the joints which form the ABC triangle
     read_angles_csvs(os.path.join(path, file_name), 24, 26, 28,
-                     'C:\\Users\\33770\\Documents\\Stage_2A\\1LBR\\1LBR_Physio.csv', 24, 26, 28)
+                     'C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Physio.csv', 24, 26, 28)
 
 
     def dtw_distance(angles1, angles2):

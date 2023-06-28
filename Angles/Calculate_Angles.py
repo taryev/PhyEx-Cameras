@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,6 +93,9 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
             angle2 = 180 - np.abs(radians2*180.0/np.pi)
             angles2.append(angle2)
 
+
+    fig = plt.figure()
+
     ax1 = plt.subplot(211)
     ax1.plot(angles1, color='purple')
     ax1.set_ylabel('Angles')
@@ -110,4 +112,4 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
 
 
 #enter the CSV file and the number of the joints which form the ABC triangle 
-read_angles_csvs('1LBR_Victor.csv', 24, 26, 28, '1LBR_Physio.csv', 24, 26, 28)
+read_angles_csvs('C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Victor.csv', 24, 26, 28, 'C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Physio.csv', 24, 26, 28)

@@ -7,11 +7,11 @@ import os
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 
-# Variables globales
+# Global variables
 file_path1 = ""
 canvas = ""
 
-# Fonction appelée lors du clic sur le bouton "Sélectionner un fichier"
+# Called fonction when you use one of the button on the interface"
 def select_file1():
     global file_path1
     file_path1 = filedialog.askopenfilename()
@@ -43,18 +43,14 @@ def get_plot():
         elif csv2[-3:]=='lsx':
             data2 = pd.read_excel(csv2, header=None)
 
-        
-
         global angles1
         angles1 = []
 
         global angles2
         angles2 = []
 
-
         num_rows1, _ = data1.shape
         num_rows2, _ = data2.shape
-        
 
         for j in range (max(num_rows1 , num_rows2)):
             
@@ -175,7 +171,7 @@ def get_plot():
 
         return selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6
             
-    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:/Users/33770/Documents/Stage_2A/PhyEx-Cameras/Joints_List.xlsx')
+    selected_joint1, selected_joint2, selected_joint3, selected_joint4, selected_joint5, selected_joint6=get_points_of_interest('C:/Users/33770/Documents/Stage_2A/PhyEx-Cameras/Angles/Joints_List.xlsx')
     
     def get_matching_physio_file(file_path):
         informations = file_path.split("/")
@@ -221,14 +217,14 @@ def get_DTW():
             for j in range(1, n):
                 cost_matrix[i, j] = abs(angles1[i] - angles2[j]) + min(cost_matrix[i-1, j], cost_matrix[i, j-1], cost_matrix[i-1, j-1])
         
-        return cost_matrix[m-1,n-1]
+        return cost_matrix[m-1, n-1]
     
-    distance=dtw_distance(angles1, angles2)
-    dtw_label.configure(text = distance)
+    distance = dtw_distance(angles1, angles2)
+    dtw_label.configure(text=distance)
 
     if distance > 10000:
         mark.configure(text = 'Bad angle', text_color= 'red')
-    else : mark.configure(text = 'Good angle', text_color= 'green')
+    else: mark.configure(text = 'Good angle', text_color= 'green')
     
 
 # Create the main window
@@ -240,7 +236,7 @@ window.geometry("800x650")
 file_button1 = ctk.CTkButton(window, text="Select the file you want to analyse", command=select_file1)
 
 # Create the combobox to select the joints
-angles=['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
+angles = ['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
 
 combobox1 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle1)
 combobox2 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle2)
@@ -259,7 +255,7 @@ combobox1.pack(padx=5,pady=10)
 
 combobox2.pack(padx=5,pady=10)
 
-# Bouton pour récupérer les valeurs avant le mainloop
+# Button
 get_plot_button.pack(padx=5,pady=10)
 
 get_DTW_button.pack(padx=5,pady=10)
