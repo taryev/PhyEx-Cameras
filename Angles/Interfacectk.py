@@ -1,3 +1,5 @@
+import tkinter
+import tkinter.messagebox
 import customtkinter as ctk
 from tkinter import filedialog
 import numpy as np
@@ -6,25 +8,43 @@ import matplotlib.pyplot as plt
 import os
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
+ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+
+window = ctk.CTk()
+window.title("Interface Physical Rehabilitation")
+window.geometry("800x650")
+
+# configure grid layout (4x4)
+window.grid_columnconfigure(0, weight=0)
+window.grid_columnconfigure(1, weight=0)
+
+#create frame
+
+frame_1 = ctk.CTkFrame(window, width=900, height = 600, corner_radius=0)
+frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_1.grid_rowconfigure(4, weight=1)
 
 # Global variables
 file_path1 = ""
-canvas = ""
+canvas=""
 
-# Called fonction when you use one of the button on the interface"
+# Called fonction when you use one of the button on the interface
 def select_file1():
     global file_path1
     file_path1 = filedialog.askopenfilename()
+    informations = file_path1.split("/")
+    name = informations[len(informations) - 1]
     if file_path1:
-        file_button1.configure(text=file_path1)
+        window.file_button1.configure(text=name)
 
 def select_angle1(event):
     global selected_angle1
-    selected_angle1 = combobox1.get()
+    selected_angle1 = window.combobox1.get()
 
 def select_angle2(event):
     global selected_angle2
-    selected_angle2 = combobox2.get()
+    selected_angle2 = window.combobox2.get()
 
 def get_plot():
 
@@ -129,7 +149,7 @@ def get_plot():
                 angle2 = 180 - np.abs(radians2*180.0/np.pi)
                 angles2.append(angle2)
 
-        fig = plt.figure()
+        fig = plt.figure(figsize=(12, 9))
         fig.subplots_adjust(hspace=0.5)
 
         ax1 = plt.subplot(211)
@@ -142,9 +162,9 @@ def get_plot():
         ax2.set_ylabel('Angles')
         ax2.set_title('Angles from the physio')
 
-        canvas = FigureCanvasTkAgg(fig, master=window)
+        canvas = FigureCanvasTkAgg(fig, master=frame_1)
         canvas.draw()
-        canvas.get_tk_widget().pack()
+        canvas.get_tk_widget().grid()
 
     def get_points_of_interest(excel):
 
@@ -220,53 +240,64 @@ def get_DTW():
         return cost_matrix[m-1, n-1]
     
     distance = dtw_distance(angles1, angles2)
-    dtw_label.configure(text=distance)
+    window.dtw_label.configure(text=distance)
 
     if distance > 10000:
-        mark.configure(text = 'Bad angle', text_color= 'red')
-    else: mark.configure(text = 'Good angle', text_color= 'green')
+        window.mark.configure(text = 'Bad angle', text_color= 'red')
+    else: window.mark.configure(text = 'Good angle', text_color= 'green')
     
+# Create tabview
 
-# Create the main window
-window = ctk.CTk()
-window.title("Interface Physical Rehabilitation")
-window.geometry("800x650")
+window.tabview = ctk.CTkTabview(window, width= 300,  height=600)
+window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
+window.tabview.grid_rowconfigure(4, weight=1)
+window.tabview.add("Plot curves")
+window.tabview.add("All scores")
+window.tabview.add("Watch videos")
 
-# Create the widgets
-file_button1 = ctk.CTkButton(window, text="Select the file you want to analyse", command=select_file1)
+# Configure grid of individual tabs
+
+window.tabview.tab("Plot curves").grid_columnconfigure(0, weight=1)  
+window.tabview.tab("All scores").grid_columnconfigure(0, weight=1)
+window.tabview.tab("Watch videos").grid_columnconfigure(0, weight=1)
+
+window.label_2 = ctk.CTkLabel(window.tabview.tab("All scores"), text="Working on it")
+window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+
+window.label_3 = ctk.CTkLabel(window.tabview.tab("Watch videos"), text="Working on it")
+window.label_3.grid(row=0, column=0, padx=20, pady=20)
+######################################################################## PLOT CURVES ##################################################################################
+
+# Create the button to select the file
+
+window.file_button1 = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Select the file you want to analyse", command=select_file1)
+window.file_button1.grid(row=0, column=0, padx=20, pady=(20, 10))
 
 # Create the combobox to select the joints
 angles = ['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
 
-combobox1 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle1)
-combobox2 = ctk.CTkComboBox(window, values=angles, button_color= 'orange',command=select_angle2)
+window.combobox1 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle1)
+window.combobox1.grid(row=1, column=0, padx=20, pady=(10, 10))
+window.combobox2 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle2)
+window.combobox2.grid(row=2, column=0, padx=20, pady=(10, 10))
 
-#Button to plot the curve
-get_plot_button = ctk.CTkButton(window, text="Plot the curve", command=get_plot)
-get_DTW_button = ctk.CTkButton(window, text="Plot the DTW distance", command=get_DTW)
-dtw_label = ctk.CTkLabel(window, text=" ")
-mark = ctk.CTkLabel(window, text=" ")
+# Create buttons to plot the curve and get the DTW distance
+window.get_plot_button = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Plot the curve", command=get_plot)
+window.get_plot_button.grid(row=3, column=0, padx=20, pady=(10, 10))
+window.get_DTW_button = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Plot the DTW distance", command=get_DTW)
+window.get_DTW_button.grid(row=4, column=0, padx=20, pady=(10, 10))
+window.dtw_label = ctk.CTkLabel(window.tabview.tab("Plot curves"), text=" ")
+window.dtw_label.grid(row=5, column=0, padx=20, pady=(10, 10))
+window.mark = ctk.CTkLabel(window.tabview.tab("Plot curves"), text=" ")
+window.mark.grid(row=6, column=0, padx=20, pady=(10, 10))
 
-# Placement des widgets dans la fenêtre
 
-file_button1.pack(padx=5,pady=10)
-
-combobox1.pack(padx=5,pady=10)
-
-combobox2.pack(padx=5,pady=10)
-
-# Button
-get_plot_button.pack(padx=5,pady=10)
-
-get_DTW_button.pack(padx=5,pady=10)
-dtw_label.pack()
-mark.pack()
-
+# close the window when we click on the cross
 def close_window():
     window.destroy()
     window.quit()
-
 window.protocol("WM_DELETE_WINDOW", close_window)
 
-# Exécution de la boucle principale
+# Execution of the main loop
 window.mainloop()
