@@ -19,44 +19,67 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 
 window = ctk.CTk()
 window.title("Interface Physical Rehabilitation")
-window.geometry("800x650")
+window.geometry("1000x650")
 
-# Configure grid layout (4x4)
-window.grid_columnconfigure(0, weight=0)
-window.grid_columnconfigure(1, weight=0)
+# # Configure grid layout (4x4)
+# window.grid_columnconfigure(0, weight=0)
+# window.grid_columnconfigure(1, weight=0)
 
-# Create frame
-
-frame_1 = ctk.CTkFrame(window, width=900, height = 600, corner_radius=0)
-frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
-frame_1.grid_rowconfigure(4, weight=1)
 
 # Global variables
 file_path1 = ""
 file_path_video = ""
 canvas = ""
 
- 
 # Create tabview
 
 window.tabview = ctk.CTkTabview(window, width= 300,  height=600)
 window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
 window.tabview.grid_rowconfigure(4, weight=1)
 window.tabview.add("Plot curves")
-window.tabview.add("All scores")
 window.tabview.add("Watch videos")
+window.tabview.add("All scores")
 
-# Configure grid of individual tabs
 
-window.tabview.tab("Plot curves").grid_columnconfigure(0, weight=1)  
-window.tabview.tab("All scores").grid_columnconfigure(0, weight=1)
-window.tabview.tab("Watch videos").grid_columnconfigure(0, weight=1)
+# # Configure grid of individual tabs
 
-window.label_2 = ctk.CTkLabel(window.tabview.tab("All scores"), text="Working on it")
-window.label_2.grid(row=0, column=0, padx=20, pady=20)
+# window.tabview.tab("Plot curves").grid_columnconfigure(0, weight=1)  
+# window.tabview.tab("All scores").grid_columnconfigure(0, weight=0)
+# #window.tabview.tab("Watch videos").grid_columnconfigure(0, weight=0)
 
-window.label_2 = ctk.CTkLabel(window.tabview.tab("Watch videos"), text="Working on it")
-window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+# Create frames
+
+frame_1_left = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=300, height = 550)
+frame_1_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_1_left.grid_propagate(False)
+frame_1_left.grid_rowconfigure((0,1,2,3,4,5), weight=1)
+
+
+frame_1 = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=850, height = 550)
+frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_1.grid_propagate(False)
+frame_1.grid_rowconfigure(4, weight=0)
+
+frame_2_left = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=300, height = 550)
+frame_2_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_2_left.grid_propagate(False)
+frame_2_left.grid_rowconfigure(4, weight=0)
+
+frame_2 = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=850, height = 550)
+frame_2.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_2.grid_propagate(False)
+frame_2.grid_rowconfigure(4, weight=0)
+
+frame_3_left = ctk.CTkFrame(window.tabview.tab("All scores"), width=300, height = 550)
+frame_3_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_3_left.grid_propagate(False)
+frame_3_left.grid_rowconfigure(4, weight=0)
+
+frame_3 = ctk.CTkFrame(window.tabview.tab("All scores"), width=850, height = 550)
+frame_3.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_3.grid_propagate(False)
+frame_3.grid_rowconfigure(4, weight=0)
 
 ######################################################################## PLOT CURVES ##################################################################################
 
@@ -81,9 +104,11 @@ def select_angle2(event):
 def get_plot():
 
     def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2 : str,joint4 : int, joint5 : int, joint6 : int):
+        
         global canvas
+        
         if canvas:
-            canvas.get_tk_widget().pack_forget()
+            canvas.get_tk_widget().grid_remove()
         
         if csv1[-3:]=='csv':
             data1 = pd.read_csv(csv1, header=None)
@@ -181,7 +206,7 @@ def get_plot():
                 angle2 = 180 - np.abs(radians2*180.0/np.pi)
                 angles2.append(angle2)
 
-        fig = plt.figure(figsize=(12, 9))
+        fig = plt.figure(figsize=(12.7, 8.3))
         fig.subplots_adjust(hspace=0.5)
 
         ax1 = plt.subplot(211)
@@ -280,33 +305,33 @@ def get_DTW():
    
 # Create the button to select the file
 
-window.file_button1 = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Select the file you want to analyse", command=select_file1)
-window.file_button1.grid(row=0, column=0, padx=20, pady=(20, 10))
+window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1)
+window.file_button1.grid(row=0, column=0, padx=20, pady=(10, 10))
 
-
-# Create the button to select the file
-
-window.file_button1 = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Select the file you want to analyse", command=select_file1)
-window.file_button1.grid(row=0, column=0, padx=20, pady=(20, 10))
 
 # Create the combobox to select the joints
+
 angles = ['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbow_angle', 'left_elbow_angle', 'right_shoulder_angle', 'left_shoulder_angle', 'right_body', 'left_body']
 
-window.combobox1 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle1)
-window.combobox1.grid(row=1, column=0, padx=20, pady=(10, 10))
+window.combobox1 = ctk.CTkComboBox(frame_1_left, values=angles, button_color= 'orange',command=select_angle1)
+window.combobox1.grid(row=1, column=0,padx=10, pady=(10, 10), sticky="ew")
 
-window.combobox2 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle2)
-window.combobox2.grid(row=2, column=0, padx=20, pady=(10, 10))
+window.combobox2 = ctk.CTkComboBox(frame_1_left, values=angles, button_color= 'orange',command=select_angle2)
+window.combobox2.grid(row=2, column=0, padx=10, pady=(10, 10), sticky="ew")
 
 # Create buttons to plot the curve and get the DTW distance
-window.get_plot_button = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Plot the curve", command=get_plot)
-window.get_plot_button.grid(row=3, column=0, padx=20, pady=(10, 10))
-window.get_DTW_button = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Plot the DTW distance", command=get_DTW)
-window.get_DTW_button.grid(row=4, column=0, padx=20, pady=(10, 10))
-window.dtw_label = ctk.CTkLabel(window.tabview.tab("Plot curves"), text=" ")
-window.dtw_label.grid(row=5, column=0, padx=20, pady=(10, 10))
-window.mark = ctk.CTkLabel(window.tabview.tab("Plot curves"), text=" ")
-window.mark.grid(row=6, column=0, padx=20, pady=(10, 10))
+
+window.get_plot_button = ctk.CTkButton(frame_1_left, text="Plot the curve", command=get_plot)
+window.get_plot_button.grid(row=3, column=0, padx=10, pady=(10, 10), sticky="ew")
+
+window.get_DTW_button = ctk.CTkButton(frame_1_left, text="Plot the DTW distance", command=get_DTW)
+window.get_DTW_button.grid(row=4, column=0, padx=10, pady=(10, 10), sticky="ew")
+
+window.dtw_label = ctk.CTkLabel(frame_1_left, text=" ")
+window.dtw_label.grid(row=5, column=0, padx=10, pady=(10, 10), sticky="ew")
+
+window.mark = ctk.CTkLabel(frame_1_left, text=" ")
+window.mark.grid(row=6, column=0, padx=10, pady=(10, 10), sticky="ew")
 
 ######################################################################## SHOW VIDEOS ##################################################################################
 
@@ -324,26 +349,26 @@ def get_video():
 
     def show_video_with_mediapipe(cap, new_width, new_height):
 
-        if not hasattr(show_video_with_mediapipe, 'canvas_created'):
-            # Créer le canvas si ce n'est pas déjà fait
-            show_video_with_mediapipe.canvas = tk.Canvas(frame_1, width=800, height=640)
-            show_video_with_mediapipe.canvas.grid(row=4, column=0, padx=20, pady=(10, 10))
-            show_video_with_mediapipe.canvas_created = True
+        if not hasattr(show_video_with_mediapipe, 'canvas1_created'):
+            
+            show_video_with_mediapipe.canvas1 = tk.Canvas(frame_2, width=1300, height=800)
+            show_video_with_mediapipe.canvas1.grid(row=4, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+            show_video_with_mediapipe.canvas1_created = True
     
         with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
             while cap.isOpened():
-                ret, frame = cap.read() # Récupère les frames de la webcam
+                ret, frame = cap.read() 
 
-                # Redimensionnement de la fenêtre
+            
                 resized_frame = cv2.resize(frame, (new_width, new_height))
 
                 results = pose.process(resized_frame)
-                # Render detections
+                
                 mp_drawing.draw_landmarks(resized_frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS) # Draw
                 
                 photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)))
-                show_video_with_mediapipe.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
-                show_video_with_mediapipe.canvas.photo = photo
+                show_video_with_mediapipe.canvas1.create_image(0, 0, image=photo, anchor=tk.NW)
+                show_video_with_mediapipe.canvas1.photo = photo
                 
                 window.update()
                 
@@ -353,19 +378,24 @@ def get_video():
             cap.release()
             cv2.destroyAllWindows()
 
-    show_video_with_mediapipe(video, 800, 640)
+    show_video_with_mediapipe(video, 1300, 800)
     
 # Create the button to select the file
 
-window.video_button1 = ctk.CTkButton(window.tabview.tab("Watch videos"), text="Select the video you want to show", command=select_video)
-window.video_button1.grid(row=1, column=0, padx=20, pady=(20, 10))
+window.video_button1 = ctk.CTkButton(frame_2_left, text="Select the video you want to show", command=select_video)
+window.video_button1.grid(row=1, column=0, padx=20, pady=(10,10))
 
 # Create the button to show the video
 
-window.show_video = ctk.CTkButton(window.tabview.tab("Watch videos"), text="Show the video", command=get_video)
-window.show_video.grid(row=3, column=0, padx=20, pady=(10, 10))
+window.show_video = ctk.CTkButton(frame_2_left, text="Show the video", command=get_video)
+window.show_video.grid(row=2, column=0, padx=20, pady=(10, 10))
 
 ##########################################################################################################################################################
+window.label_2 = ctk.CTkLabel(frame_3_left, text="Working on it")
+window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+########################################################################################################################################################################
+
 
 # close the window when we click on the cross
 
