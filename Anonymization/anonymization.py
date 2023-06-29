@@ -3,31 +3,35 @@ import os
 import numpy as np
 
 
-# load all npy files in folder
 
-video_input_folder = r'C:\Users\adolfjin\Videos\Originalni'
 
-npy_input_folder = 'Data/npy'
+# load all npy and videos files in folder
+video_input_folder = r"C:\Users\Salomé\Desktop\try"
+npy_input_folder = r"C:\Users\Salomé\Desktop\try"
+
 list_of_all_videos = [f for f in os.listdir(npy_input_folder) if f.endswith('.npy')]
 blur_kernel_size = (31, 31)
 rectangle_size = (80, 80)
 width, height = rectangle_size
 for filename in list_of_all_videos:
 
-    # Load a video
+    # Load a video (same name with mp4)
     video = cv2.VideoCapture(video_input_folder + '\\' + filename[:-4]+'.mp4')
-    # get width and height
+
+    # get width and height of the video
     width_original = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
     height_original = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
     # get fps of video
     fps = video.get(cv2.CAP_PROP_FPS)
 
-    # create a new video
+    # create a new video with good dimensions
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('Data/Output/'+filename[:-4]+'_anony.avi',fourcc, fps, (width_original, height_original))
+    out = cv2.VideoWriter(video_input_folder + '\\' + filename[:-4] + '_anony.avi', fourcc, fps,(width_original, height_original))
 
     # Video frame count
     frame_count = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+
     # read pose data from npy file
     pose_data = np.load(npy_input_folder + '\\' + filename)
 
@@ -38,11 +42,12 @@ for filename in list_of_all_videos:
         if not ret:
             break
         # Convert the frame to RGB format
-        # iterate i
+        # iterate i to count images
         i += 1
 
-        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) what is the use of this line ?
         # Run the pose estimation on the frame
+
         # plot a circle to the frame to location given by the lanmark saved in the npy file
         try:
             x = int(pose_data[i,0,0])
