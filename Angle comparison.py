@@ -22,13 +22,7 @@ def angle(csv_file):
         return colonnes_extraites
 
     # Fonction pour calculer l'angle entre 3 points
-    def calculer_angle(x1, y1, x2, y2, x3, y3):
-        try:
-            # Conversion des coordonnées en nombres
-            x1, y1, x2, y2, x3, y3 = float(x1), float(y1), float(x2), float(y2), float(x3), float(y3)
-        except ValueError:
-            # Gérer les valeurs incorrectes (dans cet exemple, nous ignorons simplement les lignes avec des valeurs incorrectes)
-            return None
+
 
         # Calcul des longueurs des côtés du triangle
         cote_a = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
