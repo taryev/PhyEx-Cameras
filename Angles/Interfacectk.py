@@ -1,5 +1,5 @@
-import tkinter
-import tkinter.messagebox
+from PIL import Image, ImageTk
+import tkinter as tk
 import customtkinter as ctk
 from tkinter import filedialog
 import numpy as np
@@ -7,6 +7,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import cv2
+import mediapipe as mp
+
+mp_drawing=mp.solutions.drawing_utils
+mp_pose=mp.solutions.pose
+
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -15,11 +21,11 @@ window = ctk.CTk()
 window.title("Interface Physical Rehabilitation")
 window.geometry("800x650")
 
-# configure grid layout (4x4)
+# Configure grid layout (4x4)
 window.grid_columnconfigure(0, weight=0)
 window.grid_columnconfigure(1, weight=0)
 
-#create frame
+# Create frame
 
 frame_1 = ctk.CTkFrame(window, width=900, height = 600, corner_radius=0)
 frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
@@ -27,9 +33,35 @@ frame_1.grid_rowconfigure(4, weight=1)
 
 # Global variables
 file_path1 = ""
-canvas=""
+file_path_video = ""
+canvas = ""
+
+ 
+# Create tabview
+
+window.tabview = ctk.CTkTabview(window, width= 300,  height=600)
+window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
+window.tabview.grid_rowconfigure(4, weight=1)
+window.tabview.add("Plot curves")
+window.tabview.add("All scores")
+window.tabview.add("Watch videos")
+
+# Configure grid of individual tabs
+
+window.tabview.tab("Plot curves").grid_columnconfigure(0, weight=1)  
+window.tabview.tab("All scores").grid_columnconfigure(0, weight=1)
+window.tabview.tab("Watch videos").grid_columnconfigure(0, weight=1)
+
+window.label_2 = ctk.CTkLabel(window.tabview.tab("All scores"), text="Working on it")
+window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+window.label_2 = ctk.CTkLabel(window.tabview.tab("Watch videos"), text="Working on it")
+window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+######################################################################## PLOT CURVES ##################################################################################
 
 # Called fonction when you use one of the button on the interface
+
 def select_file1():
     global file_path1
     file_path1 = filedialog.askopenfilename()
@@ -245,29 +277,12 @@ def get_DTW():
     if distance > 10000:
         window.mark.configure(text = 'Bad angle', text_color= 'red')
     else: window.mark.configure(text = 'Good angle', text_color= 'green')
-    
-# Create tabview
+   
+# Create the button to select the file
 
-window.tabview = ctk.CTkTabview(window, width= 300,  height=600)
-window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
-window.tabview.grid_rowconfigure(4, weight=1)
-window.tabview.add("Plot curves")
-window.tabview.add("All scores")
-window.tabview.add("Watch videos")
+window.file_button1 = ctk.CTkButton(window.tabview.tab("Plot curves"), text="Select the file you want to analyse", command=select_file1)
+window.file_button1.grid(row=0, column=0, padx=20, pady=(20, 10))
 
-# Configure grid of individual tabs
-
-window.tabview.tab("Plot curves").grid_columnconfigure(0, weight=1)  
-window.tabview.tab("All scores").grid_columnconfigure(0, weight=1)
-window.tabview.tab("Watch videos").grid_columnconfigure(0, weight=1)
-
-window.label_2 = ctk.CTkLabel(window.tabview.tab("All scores"), text="Working on it")
-window.label_2.grid(row=0, column=0, padx=20, pady=20)
-
-
-window.label_3 = ctk.CTkLabel(window.tabview.tab("Watch videos"), text="Working on it")
-window.label_3.grid(row=0, column=0, padx=20, pady=20)
-######################################################################## PLOT CURVES ##################################################################################
 
 # Create the button to select the file
 
@@ -279,6 +294,7 @@ angles = ['Select the angle ','right_knee_angle', 'left_knee_angle', 'right_elbo
 
 window.combobox1 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle1)
 window.combobox1.grid(row=1, column=0, padx=20, pady=(10, 10))
+
 window.combobox2 = ctk.CTkComboBox(window.tabview.tab("Plot curves"), values=angles, button_color= 'orange',command=select_angle2)
 window.combobox2.grid(row=2, column=0, padx=20, pady=(10, 10))
 
@@ -292,8 +308,67 @@ window.dtw_label.grid(row=5, column=0, padx=20, pady=(10, 10))
 window.mark = ctk.CTkLabel(window.tabview.tab("Plot curves"), text=" ")
 window.mark.grid(row=6, column=0, padx=20, pady=(10, 10))
 
+######################################################################## SHOW VIDEOS ##################################################################################
+
+def select_video():
+    global file_path_video
+    file_path_video = filedialog.askopenfilename()
+    informations = file_path_video.split("/")
+    name = informations[len(informations) - 1]    
+    if file_path_video:
+        window.video_button1.configure(text=name)
+
+def get_video():
+
+    video = cv2.VideoCapture(file_path_video)
+
+    def show_video_with_mediapipe(cap, new_width, new_height):
+
+        if not hasattr(show_video_with_mediapipe, 'canvas_created'):
+            # Créer le canvas si ce n'est pas déjà fait
+            show_video_with_mediapipe.canvas = tk.Canvas(frame_1, width=800, height=640)
+            show_video_with_mediapipe.canvas.grid(row=4, column=0, padx=20, pady=(10, 10))
+            show_video_with_mediapipe.canvas_created = True
+    
+        with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+            while cap.isOpened():
+                ret, frame = cap.read() # Récupère les frames de la webcam
+
+                # Redimensionnement de la fenêtre
+                resized_frame = cv2.resize(frame, (new_width, new_height))
+
+                results = pose.process(resized_frame)
+                # Render detections
+                mp_drawing.draw_landmarks(resized_frame, results.pose_landmarks, mp_pose.POSE_CONNECTIONS) # Draw
+                
+                photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(resized_frame, cv2.COLOR_BGR2RGB)))
+                show_video_with_mediapipe.canvas.create_image(0, 0, image=photo, anchor=tk.NW)
+                show_video_with_mediapipe.canvas.photo = photo
+                
+                window.update()
+                
+                if cv2.waitKey(10) & 0xFF == ord('q'): 
+                    break
+
+            cap.release()
+            cv2.destroyAllWindows()
+
+    show_video_with_mediapipe(video, 800, 640)
+    
+# Create the button to select the file
+
+window.video_button1 = ctk.CTkButton(window.tabview.tab("Watch videos"), text="Select the video you want to show", command=select_video)
+window.video_button1.grid(row=1, column=0, padx=20, pady=(20, 10))
+
+# Create the button to show the video
+
+window.show_video = ctk.CTkButton(window.tabview.tab("Watch videos"), text="Show the video", command=get_video)
+window.show_video.grid(row=3, column=0, padx=20, pady=(10, 10))
+
+##########################################################################################################################################################
 
 # close the window when we click on the cross
+
 def close_window():
     window.destroy()
     window.quit()
