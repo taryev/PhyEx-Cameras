@@ -3,22 +3,27 @@ import os
 import glob
 
 
-def rename(files: list[str], name: str, extention: str):
+def rename(files: list[str], old_name: str, new_name: str, extention: str):
     '''
     :param files: Files paths to be renamed
-    :param name: Name
     :param extention: Extension of the file (npy, xlsx, csv...)
     :return:
     '''
-    regex = fr"^(.*?)_(\d+)_ID_(.*?)_cam_(\d+)\.{extention}$"
+    regex = fr"^(.*?)_(\d+)_ID_{old_name}_cam_(.*?)(\d+)\.{extention}$"
     for file in files:
         match = re.match(regex, file)
         if match:
-            new_fname = re.sub(regex, r"\1_\2_ID_" + name + r"_cam_\4."+ extention, file)
+            new_fname = re.sub(regex, r"\1_\2_ID_" + new_name + r"_cam_\4."+ extention, file)
             os.rename(file, new_fname)
             print(f"Renamed {file} to {new_fname}")
+        else:
+            print(f"No match for file {file}")
 
+files = glob.glob("C:/Users/Salomé/Desktop/OpenPoseData/*1 salome*.npy")
 
+#print(f"Found {len(files)} files to check")
+
+rename(files,"1 salome", "Bicycle", "npy")
 '''
 Usage example :
 We get all mp4 files in /Volumes/USB/NicolasVideos/
