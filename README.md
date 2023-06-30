@@ -1,6 +1,8 @@
 # PhyEx Cameras
 Scripts and snippets used to operate the cameras on the PhyEx Project
 
+Useful links : [Mediapipe documentation](https://developers.google.com/mediapipe/api/solutions/python/mp), [Mediapipe/Openpose landmarks](landmarks.md)
+
 ## Camera calibration
 The aim of camera calibration is to obtain for each of the cameras, the _intrinsic_ and _extrinsic_ parameters in order to obtain images with a maximum-reduced distortion to proceed to the 3D tracking.
 
