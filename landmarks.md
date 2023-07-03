@@ -43,4 +43,4 @@ This table summarizes the landmarks available in Mediapipe and Openpose, their n
 | ❌                   | lsmalltoe 20 |
 | ❌                   | rsmalltoe 23 |
 
-Neck and midhip landmarks for Mediapipe are approximated by calculating the 
+Neck and midhip landmarks for Mediapipe are approximated by calculating the midpoint between two points
