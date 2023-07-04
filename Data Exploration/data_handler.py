@@ -3,7 +3,7 @@ import numpy as np
 
 
 class MediapipeData:
-    columns_names = [
+    _columns_names = [
             "nose_x",
             "nose_y",
             "nose_z",
@@ -116,7 +116,7 @@ class MediapipeData:
         self.data = pd.read_csv(path, header=None)
         for col in range(0,6):
             self.data[f'{col}'] = np.nan
-        self.data.columns = self.columns_names
+        self.data.columns = self._columns_names
         self.data['neck_x'] = (self.data['left_shoulder_x']+self.data['right_shoulder_x'])/2
         self.data['neck_y'] = (self.data['left_shoulder_y']+self.data['right_shoulder_y'])/2
         self.data['neck_z'] = (self.data['left_shoulder_z']+self.data['right_shoulder_z'])/2
@@ -127,7 +127,7 @@ class MediapipeData:
 
 
 class OpenposeData:
-    columns_names = [
+    _columns_names = [
         "nose_x",
         "nose_y",
         "neck_x",
@@ -183,13 +183,13 @@ class OpenposeData:
     def __init__(self, path: str):
         self.path = path
         self.data_npy = np.load(path)
-        dataframe = pd.DataFrame(columns = self.columns_names)
+        dataframe = pd.DataFrame(columns = self._columns_names)
         frame_count = self.data_npy.shape[0]
         for i in range(0, frame_count):
             frame = self.data_npy[i][:,0:2]
             frame = np.transpose(frame)
             frame = np.ravel(frame, order='F')
-            tmp_df = pd.DataFrame([frame], columns=self.columns_names)
+            tmp_df = pd.DataFrame([frame], columns=self._columns_names)
             dataframe = pd.concat([dataframe, tmp_df], ignore_index=True)
         self.data = dataframe
 
