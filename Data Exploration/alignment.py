@@ -35,7 +35,7 @@ mp_brgm_emilio = datah.MediapipeData("/Users/quentinveyrat/Downloads/BRGM_168500
 ankle = mp_brgm_emilio.data[['right_ankle_x', 'right_ankle_y']]
 shoulder = mp_brgm_emilio.data[['right_shoulder_x', 'right_shoulder_y']]
 hip = mp_brgm_emilio.data[['right_hip_x','right_hip_y']]
-knee = mp_brgm_emilio.data[['right_knee_x', 'right_hip_y']]
+knee = mp_brgm_emilio.data[['right_knee_x', 'right_knee_y']]
 
 align = get_point_alignment((ankle,shoulder,hip,knee))
 
