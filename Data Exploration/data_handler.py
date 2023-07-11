@@ -124,6 +124,17 @@ class MediapipeData:
         self.data['midhip_y'] = (self.data['left_hip_y']+self.data['left_hip_y'])/2
         self.data['midhip_z'] = (self.data['left_hip_z']+self.data['left_hip_z'])/2
 
+    def get_by_index(self, index: int ,include_z: bool = False):
+        """
+        Retrieves point coordinates from landmark number.
+        :param index: landmark number
+        :param include_z: include z-coordinates
+        :return:
+        """
+        if include_z:
+            return self.data.iloc[:,index*3:index*3+3]
+        else:
+            return self.data.iloc[:,index*3:index*3+2]
 
 
 class OpenposeData:
@@ -193,6 +204,13 @@ class OpenposeData:
             dataframe = pd.concat([dataframe, tmp_df], ignore_index=True)
         self.data = dataframe
 
+    def get_by_index(self, index: int):
+        """
+        Retrieves point coordinates from landmark number.
+        :param index: landmark number
+        :return:
+        """
+        return self.data.iloc[:,index*3:index*3+2]
 
 '''
 # Usages examples
@@ -207,3 +225,7 @@ neckz = mp.data['neck_z'][45]
 rightbigtoex = op.data['rbigtoe_x'][73]
 
 '''
+
+mp = MediapipeData("/Users/quentinveyrat/Desktop/NicolasCSV/SMSQ_1686575947_ID_Nicolas_cam_4.csv")
+test = mp.get_by_index(33)
+print(test)
