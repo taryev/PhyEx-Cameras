@@ -1,7 +1,4 @@
-import pandas as pd
 import numpy as np
-import data_handler as datah
-from matplotlib import pyplot as plt
 
 
 def get_point_alignment(keypoints):
@@ -21,6 +18,10 @@ def get_point_alignment(keypoints):
 
 """
 Usage examples
+
+import data_handler as datah
+from matplotlib import pyplot as plt
+
 op_brgm_emilio = datah.OpenposeData("/Users/quentinveyrat/Downloads/OpenPoseData/BRGM_1685003497_ID_9 Emilio_cam_4.npy")
 ankle = op_brgm_emilio.data[['rankle_x', 'rankle_y']]
 shoulder = op_brgm_emilio.data[['rshoulder_x', 'rshoulder_y']]

@@ -1,6 +1,4 @@
 import numpy as np
-import data_handler as dh
-from matplotlib import pyplot as plt
 
 
 def calculate_angle(point1, point2, point3) -> float:
@@ -24,6 +22,9 @@ def calculate_angle(point1, point2, point3) -> float:
 
 """
 Usage example
+
+import data_handler as dh
+from matplotlib import pyplot as plt
 mp_1lbr = dh.MediapipeData("/Users/quentinveyrat/Downloads/1LBR_1686643789_ID_Telescope_cam_4.csv")
 
 mp_rhip = mp_1lbr.data[['right_hip_x', 'right_hip_y']]
