@@ -19,6 +19,8 @@ def get_point_alignment(keypoints):
 
     return cors
 
+"""
+Usage examples
 op_brgm_emilio = datah.OpenposeData("/Users/quentinveyrat/Downloads/OpenPoseData/BRGM_1685003497_ID_9 Emilio_cam_4.npy")
 ankle = op_brgm_emilio.data[['rankle_x', 'rankle_y']]
 shoulder = op_brgm_emilio.data[['rshoulder_x', 'rshoulder_y']]
@@ -42,3 +44,4 @@ align = get_point_alignment((ankle,shoulder,hip,knee))
 plt.title("MP BRGM EMILIO")
 plt.plot(align)
 plt.show()
+"""
