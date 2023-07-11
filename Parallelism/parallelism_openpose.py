@@ -34,7 +34,7 @@ def calculate_parallel(npy_file: str, point_a: int, point_b: int, point_c: int, 
     plt.plot(range(len(parallelism_values)), parallelism_values, label="Parallelisme")
     plt.xlabel('Index')
     plt.ylabel('Parallelisme')
-    plt.title('Percentage Difference Between the Two Line Slopes')
+    plt.title('Percentage Difference Between the Two Line Slopes - OPENPOSE')
     plt.legend()
 
     plt.show()
