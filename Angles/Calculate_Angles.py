@@ -113,3 +113,54 @@ def read_angles_csvs(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, csv2
 
 #enter the CSV file and the number of the joints which form the ABC triangle 
 read_angles_csvs('C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Victor.csv', 24, 26, 28, 'C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Physio.csv', 24, 26, 28)
+
+def read_angle_for_1_csv(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, angle_to_analyse : int):
+    
+    data1 = pd.read_csv(csv1, header=None)
+
+    angles1 = []
+
+    num_rows1, _ = data1.shape
+
+    for j in range (0, num_rows1):
+        
+        x_a = data1.iloc[j,3 * joint1] 
+        y_a = data1.iloc[j,3 * joint1 + 1]
+
+        x_b = data1.iloc[j,3 * joint2] 
+        y_b = data1.iloc[j,3 * joint2 + 1]
+
+        x_c = data1.iloc[j,3 * joint3] 
+        y_c = data1.iloc[j,3 * joint3 + 1]
+
+        AB = (y_b - y_a)/(x_b - x_a)
+        BC = (y_c - y_b)/(x_c - x_b)
+
+        radians1 = np.arctan2((AB - BC), (1 + AB * BC))
+        angle1 = 180 - np.abs(radians1*180.0/np.pi)
+        
+        angles1.append(angle1)
+
+
+    inf_interval = 0.8*angle_to_analyse
+    sup_interval = 1.2*angle_to_analyse
+    count=0
+    
+    for angle in angles1:
+        if (angle>=inf_interval) and (angle<=sup_interval):
+            count+=1
+            print(angle)
+            print("Respected angle")
+
+    print('angle is respected', (count/num_rows1)*100)
+
+    plt.figure()
+    plt.plot(angles1, color='purple')
+    plt.title('Angles from the first CSV')
+
+    
+    plt.show()
+
+
+#enter the CSV file, the number of the joints which form the ABC triangle, and the angle you want to check
+read_angle_for_1_csv('C:\\Users\\33770\\Documents\\Stage_2A\\1LBR_Victor.csv', 24, 26, 28, 120)
