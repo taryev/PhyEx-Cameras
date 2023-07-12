@@ -214,17 +214,17 @@ class OpenposeData:
 
 '''
 # Usages examples
-mp = MediapipeData("/Users/quentinveyrat/Desktop/NicolasCSV/SMSQ_1686575947_ID_Nicolas_cam_4.csv")
-op = OpenposeData("/Users/quentinveyrat/Downloads/OpenPoseData/BRK4_1686654805_ID_Coline_cam_4.npy")
+op = OpenposeData("BRK4_1686654805_ID_Guitar_cam_4.npy")
+mp = MediapipeData("SMSQ_1686575947_ID_Mountain_cam_4.csv")
 
-# dataframe.data['LANDMARK_NAME']['FRAME']
-
+# dataframe.data['LANDMARK_NAME'][FRAME]
 nosex = mp.data['nose_x'][0]
-neckz = mp.data['neck_z'][45]
-
 rightbigtoex = op.data['rbigtoe_x'][73]
+neckz_1 = mp.data['neck_z'][45]
 
-mp = MediapipeData("/Users/quentinveyrat/Desktop/NicolasCSV/SMSQ_1686575947_ID_Nicolas_cam_4.csv")
-test = mp.get_by_index(33)
-print(test)
+# dataframe.get_by_index(LANDMARK_INDEX).iloc[FRAME,COORDINATE]
+# COORDINATE = 0 for x, 1 for y and 2 for z
+neckz_2 = mp.get_by_index(33, True).iloc[45,2]
+
+
 '''

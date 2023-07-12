@@ -10,6 +10,7 @@ Clone this git repository, then open the PhyEx_Cameras folder in PyCharm.
 Before running anything, install all dependencies using pip or the `requirements.txt` file.
 
 ## Usage
+Each section explains how the code works and gives usage examples.
 ### Graphic User Interface
 🎯 Propose a graphical solution to simplify usage of functionalities  
 📖 Documentation : [PhyEx Cameras GUI](Documentation/gui.md)
