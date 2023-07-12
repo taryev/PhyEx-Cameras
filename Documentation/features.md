@@ -55,7 +55,7 @@ mp_rhip = mp_1lbr.data[['right_hip_x', 'right_hip_y']]
 mp_rknee = mp_1lbr.data[['right_knee_x', 'right_knee_y']]
 mp_rankle = mp_1lbr.data[['right_ankle_x', 'right_ankle_y']]
 
-angle = features.calculate_angle(mp_rhip, mp_rknee, mp_rankle)
+angle = features.get_angle(mp_rhip, mp_rknee, mp_rankle)
 ```
 
 ## Distance
