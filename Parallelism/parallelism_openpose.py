@@ -23,21 +23,20 @@ def calculate_parallel(npy_file: str, point_a: int, point_b: int, point_c: int, 
 
             # Calculate the percentage difference
             slope_diff_percentage = abs(AB_slope - CD_slope) / ((AB_slope + CD_slope) / 2) * 100
-
             slope_diff_percentages.append(slope_diff_percentage)
 
-    parallelism_values = [abs(1 - diff / 100) for diff in slope_diff_percentages]
+    # Only keep parallelism_values below a certain threshold
+    parallelism_values = [abs(1 - diff / 100) for diff in slope_diff_percentages if abs(1 - diff / 100) < 20]
 
     fig = plt.figure(figsize=(10, 8))
 
     # Plot Parallel
-    plt.plot(range(len(parallelism_values)), parallelism_values, label="Parallelisme")
+    plt.plot(range(len(parallelism_values)), parallelism_values, label='Parallelisme')
     plt.xlabel('Index')
     plt.ylabel('Parallelisme')
     plt.title('Percentage Difference Between the Two Line Slopes - OPENPOSE')
     plt.legend()
 
     plt.show()
-
 
 calculate_parallel("C:/Users/Salomé/Downloads/CLMB_1684851174_ID_1 salome_cam_4.npy", 2,4,5,7)

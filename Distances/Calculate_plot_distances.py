@@ -101,10 +101,6 @@ def calculate_distances(csv: str, point_a: int, point_b: int, point_c: int, poin
     table.scale(1, 1.5)
     ax3.axis('off')
 
-    table = ax3.table(cellText=table_data, loc='center', cellLoc='center')
-    table.auto_set_column_width([0, 1, 2])
-    table.scale(1, 1.5)
-    ax3.axis('off')
 
     plt.subplots_adjust(hspace=1.2)
 

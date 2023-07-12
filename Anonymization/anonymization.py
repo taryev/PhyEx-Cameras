@@ -6,8 +6,8 @@ import numpy as np
 
 
 # load all npy and videos files in folder
-video_input_folder = r"C:\Users\Salomé\Desktop\try"
-npy_input_folder = r"C:\Users\Salomé\Desktop\try"
+video_input_folder = r"C:\Users\Salomé\Desktop\OpenPoseData"
+npy_input_folder = r"C:\Users\Salomé\Desktop\OpenPoseData"
 
 list_of_all_videos = [f for f in os.listdir(npy_input_folder) if f.endswith('.npy')]
 blur_kernel_size = (31, 31)
