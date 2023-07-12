@@ -224,8 +224,7 @@ neckz = mp.data['neck_z'][45]
 
 rightbigtoex = op.data['rbigtoe_x'][73]
 
-'''
-
 mp = MediapipeData("/Users/quentinveyrat/Desktop/NicolasCSV/SMSQ_1686575947_ID_Nicolas_cam_4.csv")
 test = mp.get_by_index(33)
 print(test)
+'''
