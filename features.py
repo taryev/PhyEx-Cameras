@@ -17,7 +17,7 @@ def get_point_alignment(keypoints):
             x.append(point.iloc[0])
             y.append(point.iloc[1])
         cor = np.corrcoef(x, y)
-        cors.append(cor[0, 1])
+        cors.append(abs(cor[0, 1]))
 
     return cors
 
