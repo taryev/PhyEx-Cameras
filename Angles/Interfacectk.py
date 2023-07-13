@@ -26,9 +26,11 @@ window.title("Interface Physical Rehabilitation")
 # Size of the screen
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
+    
+desired_height=int(screen_height*0.9)
 
 # Configuration the size of the interface to match the screen
-window.geometry(f"{screen_width}x{screen_height}+{0}+{0}")
+window.geometry(f"{screen_width}x{desired_height}+{0}+{0}")
 
 # Global variables
 
@@ -40,7 +42,10 @@ list_of_data=[]
 
 # Create tabview
 
-window.tabview = ctk.CTkTabview(window, width= 300,  height=600)
+tabview_width = 0.97*screen_width
+tabview_height = 0.92*desired_height
+
+window.tabview = ctk.CTkTabview(window, width= tabview_width,  height=tabview_height)
 window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
 window.tabview.grid_rowconfigure(4, weight=1)
 window.tabview.add("Plot curves")
@@ -49,33 +54,36 @@ window.tabview.add("All scores")
 
 # Create frames
 
-frame_1_left = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=300, height = 550)
+frame_height = 0.92 * tabview_height
+frame_left_width = 0.25 * tabview_width
+frame_right_width = 0.67 * tabview_width
+
+frame_1_left = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=frame_left_width, height = frame_height)
 frame_1_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_1_left.grid_propagate(False)
 frame_1_left.grid_rowconfigure((0,1,2,3,4,5), weight=1)
 
-
-frame_1 = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=850, height = 550)
+frame_1 = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=frame_right_width, height = frame_height)
 frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_1.grid_propagate(False)
 frame_1.grid_rowconfigure(4, weight=0)
 
-frame_2_left = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=300, height = 550)
+frame_2_left = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=frame_left_width, height = frame_height)
 frame_2_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_2_left.grid_propagate(False)
 frame_2_left.grid_rowconfigure(4, weight=0)
 
-frame_2 = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=850, height = 550)
+frame_2 = ctk.CTkFrame(window.tabview.tab("Watch videos"), width=frame_right_width, height = frame_height)
 frame_2.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_2.grid_propagate(False)
 frame_2.grid_rowconfigure(4, weight=0)
 
-frame_3_left = ctk.CTkFrame(window.tabview.tab("All scores"), width=300, height = 550)
+frame_3_left = ctk.CTkFrame(window.tabview.tab("All scores"), width=frame_left_width, height = frame_height)
 frame_3_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_3_left.grid_propagate(False)
 frame_3_left.grid_rowconfigure(4, weight=0)
 
-frame_3 = ctk.CTkFrame(window.tabview.tab("All scores"), width=850, height = 550)
+frame_3 = ctk.CTkFrame(window.tabview.tab("All scores"), width=frame_right_width, height = frame_height)
 frame_3.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_3.grid_propagate(False)
 frame_3.grid_rowconfigure(4, weight=0)
@@ -112,7 +120,6 @@ def select_feature(event):
 
             window.combobox2.configure(values=list_of_data)
         
-
 def select_data(event):
     global selected_data
     selected_data = window.combobox2.get()
@@ -163,7 +170,7 @@ def get_plot():
                 
                 angles1.append(angle1)
 
-            fig = plt.figure(figsize=(12.7, 8.3))
+            fig = plt.figure(figsize=(0.015*frame_right_width, 0.015*frame_height))
             plt.plot(angles1, color='purple')
             plt.title("Angle")
 
@@ -413,11 +420,11 @@ def get_plot():
  
 # Create the button to select the file
 
-window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260)
+window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260, anchor='center')
 window.file_button1.grid(row=0, column=0, padx=20, pady=(10, 10))
 
 
-# Create the combobox to select the joints
+# Create the combobox to select the points
 
 features=['Select the features ','Angle', 'Distance', 'Alignment', 'Parallelism']
     
