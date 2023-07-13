@@ -22,12 +22,13 @@ ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark
 
 window = ctk.CTk()
 window.title("Interface Physical Rehabilitation")
-window.geometry("1000x650")
 
-# # Configure grid layout (4x4)
-# window.grid_columnconfigure(0, weight=0)
-# window.grid_columnconfigure(1, weight=0)
+# Size of the screen
+screen_width = window.winfo_screenwidth()
+screen_height = window.winfo_screenheight()
 
+# Configuration the size of the interface to match the screen
+window.geometry(f"{screen_width}x{screen_height}+{0}+{0}")
 
 # Global variables
 
@@ -36,7 +37,6 @@ file_path_video = ""
 selected_feature = ""
 canvas = ""
 list_of_data=[]
-
 
 # Create tabview
 
@@ -410,8 +410,7 @@ def get_plot():
         selected_joint_parallelisme_1, selected_joint_parallelisme_2, selected_joint_parallelisme_3, selected_joint_parallelisme_4=get_points_of_interest_parallelism(file_parallelism)    
 
         calculate_parallel(file_path1, int(selected_joint_parallelisme_1), int(selected_joint_parallelisme_2), int(selected_joint_parallelisme_3),  int(selected_joint_parallelisme_4))
-
-   
+ 
 # Create the button to select the file
 
 window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260)
