@@ -10,6 +10,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import cv2
 import mediapipe as mp
 import data_handler as dh
+import matplotlib.gridspec as gridspec
 import features as feat
 
 
@@ -110,7 +111,7 @@ def select_feature(event):
                 list_of_data.append(file.iloc[i,0])
 
             window.combobox2.configure(values=list_of_data)
-    print(list_of_data)    
+        
 
 def select_data(event):
     global selected_data
@@ -162,19 +163,9 @@ def get_plot():
                 
                 angles1.append(angle1)
 
-
-            # inf_interval = 0.8*angle_to_analyse
-            # sup_interval = 1.2*angle_to_analyse
-            # count=0
-            
-            # for angle in angles1:
-            #     if (angle>=inf_interval) and (angle<=sup_interval) :
-            #         count+=1
-
-            # print('angle is respected : ', (count/num_rows1)*100)
-
             fig = plt.figure(figsize=(12.7, 8.3))
             plt.plot(angles1, color='purple')
+            plt.title("Angle")
 
             canvas = FigureCanvasTkAgg(fig, master=frame_1)
             canvas.draw()
@@ -194,18 +185,118 @@ def get_plot():
 
             return selected_joint1, selected_joint2, selected_joint3
       
-        selected_joint1, selected_joint2, selected_joint3=get_points_of_interest(file_angle) 
+        selected_joint_angle_1, selected_joint_angle_2, selected_joint_angle_3=get_points_of_interest(file_angle) 
         
-        read_angle_for_1_csv(file_path1, int(selected_joint1), int(selected_joint2), int(selected_joint3))
+        read_angle_for_1_csv(file_path1, int(selected_joint_angle_1), int(selected_joint_angle_2), int(selected_joint_angle_3))
 
-    # if selected_feature=='Distance':
-    #     file_distance=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
+    if selected_feature=='Distance':
+        file_distance=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
+
+        def get_points_of_interest_distance(file):
+
+            selected_joint1 = []
+            selected_joint2 = []
+            selected_joint3 = []
+            selected_joint4 = []
+        
+            for i,angle in enumerate(list_of_data):
+                if selected_data==angle:
+                    selected_joint1=file.iloc[i+1,1]
+                    selected_joint2=file.iloc[i+1,2]
+                    selected_joint3=file.iloc[i+1,3]
+                    selected_joint4=file.iloc[i+1,4]
+
+            return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+      
+        selected_joint_distance_1, selected_joint_distance_2, selected_joint_distance_3, selected_joint_distance_4=get_points_of_interest_distance(file_distance)
+
+        def calculate_distances(csv: str, point_a: int, point_b: int, point_c: int, point_d: int):
+            
+            global canvas
+                   
+            if canvas:
+                canvas.get_tk_widget().grid_remove()
+            
+            # Read the CSV or xlsx file
+            if csv[-3:]=='csv':
+                    data = pd.read_csv(csv, header=None)
+            elif csv[-3:]=='lsx':
+                    data = pd.read_excel(csv, header=None)
+
+            AB = []
+            CD = []
+            ecart = []
+
+            num_rows, _ = data.shape
+
+            for j in range(num_rows):
+
+                if (j in data.index):
+                    # We get the coordinates for each point
+                    x_a = data.iloc[j, 3 * point_a]
+                    y_a = data.iloc[j, 3 * point_a + 1]
+
+                    x_b = data.iloc[j, 3 * point_b]
+                    y_b = data.iloc[j, 3 * point_b + 1]
+
+                    x_c = data.iloc[j, 3 * point_c]
+                    y_c = data.iloc[j, 3 * point_c + 1]
+
+                    x_d = data.iloc[j, 3 * point_d]
+                    y_d = data.iloc[j, 3 * point_d + 1]
+
+                    AB_val = np.sqrt((x_b - x_a) ** 2 + (y_b - y_a) ** 2)
+                    CD_val = np.sqrt((x_d - x_c) ** 2 + (y_d - y_c) ** 2)
+
+                    # We add the calculated distances to the AB and CD lists
+                    AB.append(AB_val)
+                    CD.append(CD_val)
+
+                    # We calculate the pourcentage of difference
+                    ecart_val = abs(AB_val - CD_val) / ((AB_val + CD_val) / 2) * 100
+                    ecart.append(ecart_val)
+
+            
+
+            fig = plt.figure(figsize=(12.7, 8.3))
+            gs = gridspec.GridSpec(7, 1, height_ratios=[1, 1, 1, 2, 2, 2, 2])
+
+            # Plot AB and CD
+            ax1 = plt.subplot(gs[0:3])  # adjust the range here
+            ax1.plot(range(len(AB)), AB, label="AB")
+            ax1.plot(range(len(CD)), CD, label="CD", color='orange')
+            ax1.set_xlabel('Index')
+            ax1.set_ylabel('Distance')
+            ax1.set_title('Distances AB and CD')
+            ax1.legend()
+            ax1.set_xlim([0, len(AB)])  # X limits from 0 to the length of AB
+            ax1.set_ylim([0, max(max(AB), max(CD)) * 1.1])  # Y limits from 0 to 110% of the max value
+
+            # Plot the % of difference between AB and CD
+            ax2 = plt.subplot(gs[4:6])  # adjust the range here
+            ecart_above_threshold = [val if val > 10 else np.nan for val in ecart]
+            ecart_below_threshold = [val if val <= 10 else np.nan for val in ecart]
+            ax2.plot(range(len(ecart)), ecart_below_threshold, label="Ecart <= 10%", color='blue')
+            ax2.plot(range(len(ecart)), ecart_above_threshold, label="Ecart > 10%", color='red')
+            ax2.set_ylim([0, max(ecart) * 1.1])  # Y limits from 0 to 110% of the max value
+            ax2.set_xlabel('Index')
+            ax2.set_ylabel('Pourcentage de différence')
+            ax2.legend()
+
+            
+            plt.subplots_adjust(hspace=1.2)
+
+            canvas = FigureCanvasTkAgg(fig, master=frame_1)
+            canvas.draw()
+            canvas.get_tk_widget().grid()
+
+        calculate_distances(file_path1, int(selected_joint_distance_1), int(selected_joint_distance_2), int(selected_joint_distance_3), int(selected_joint_distance_4))
 
     if selected_feature=='Alignment':
 
         file_alignment=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
 
-        def get_points_of_interest(file):
+        def get_points_of_interest_alignment(file):
 
             if canvas:
                 canvas.get_tk_widget().grid_remove()
@@ -220,7 +311,7 @@ def get_plot():
                
             return list
 
-        list_of_points_to_test=get_points_of_interest(file_alignment)
+        list_of_points_to_test=get_points_of_interest_alignment(file_alignment)
 
         data = dh.MediapipeData(file_path1)
 
@@ -238,37 +329,110 @@ def get_plot():
         canvas.draw()
         canvas.get_tk_widget().grid()
 
-        # plt.figure()
-        # plt.plot(alignement)
-        # plt.show()
-
-
     if selected_feature=='Parallelism':  
       
         file_parallelism=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
 
+        def calculate_parallel(file: str, point_a: int, point_b: int, point_c: int, point_d: int):
+
+            global canvas
+                   
+            if canvas:
+                canvas.get_tk_widget().grid_remove()
+
+            if file[-3:]=='csv':
+                data = pd.read_csv(file, header=None)
+            elif file[-3:]=='lsx':
+                data = pd.read_excel(file, header=None)
+
+            slope_diff_percentages = []
+
+            num_rows, _ = data.shape
+
+            for j in range(num_rows):
+                if (j in data.index):
+
+                    x_a = data.iloc[j, 3 * point_a]
+                    y_a = data.iloc[j, 3 * point_a + 1]
+
+                    x_b = data.iloc[j, 3 * point_b]
+                    y_b = data.iloc[j, 3 * point_b + 1]
+
+                    x_c = data.iloc[j, 3 * point_c]
+                    y_c = data.iloc[j, 3 * point_c + 1]
+
+                    x_d = data.iloc[j, 3 * point_d]
+                    y_d = data.iloc[j, 3 * point_d + 1]
+
+
+                    if (x_b - x_a) != 0 and (x_d - x_c) != 0:
+                        AB_slope = (y_b - y_a) / (x_b - x_a)
+                        CD_slope = (y_d - y_c) / (x_d - x_c)
+
+
+                        slope_diff_percentage = abs(AB_slope - CD_slope) / ((AB_slope + CD_slope) / 2) * 100
+
+                        slope_diff_percentages.append(slope_diff_percentage)
+
+            parallelism_values = [abs(1 - diff / 100) for diff in slope_diff_percentages]
+
+
+            fig = plt.figure(figsize=(12.7, 8.3))
+            plt.plot(range(len(parallelism_values)), parallelism_values, label="Parallelisme", color='purple')
+
+        
+
+            plt.xlabel('Index')
+            plt.ylabel('Parallelisme')
+            plt.title('Percentage Difference Between the Two Line Slopes - MEDIA PIPE')
+            plt.legend()
+
+            canvas = FigureCanvasTkAgg(fig, master=frame_1)
+            canvas.draw()
+            canvas.get_tk_widget().grid()
+
+        def get_points_of_interest_parallelism(file):
+
+            selected_joint1 = []
+            selected_joint2 = []
+            selected_joint3 = []
+            selected_joint4 = []
+        
+            for i,angle in enumerate(list_of_data):
+                if selected_data==angle:
+                    selected_joint1=file.iloc[i+1,1]
+                    selected_joint2=file.iloc[i+1,2]
+                    selected_joint3=file.iloc[i+1,3]
+                    selected_joint4=file.iloc[i+1,4]
+
+            return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+      
+        selected_joint_parallelisme_1, selected_joint_parallelisme_2, selected_joint_parallelisme_3, selected_joint_parallelisme_4=get_points_of_interest_parallelism(file_parallelism)    
+
+        calculate_parallel(file_path1, int(selected_joint_parallelisme_1), int(selected_joint_parallelisme_2), int(selected_joint_parallelisme_3),  int(selected_joint_parallelisme_4))
 
    
 # Create the button to select the file
 
-window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1)
+window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260)
 window.file_button1.grid(row=0, column=0, padx=20, pady=(10, 10))
 
 
-# Create the combobox to select the points
+# Create the combobox to select the joints
 
 features=['Select the features ','Angle', 'Distance', 'Alignment', 'Parallelism']
- 
+    
 window.combobox1 = ctk.CTkComboBox(frame_1_left, values=features, button_color= 'orange',command=select_feature)
 window.combobox1.grid(row=1, column=0,padx=10, pady=(10, 10), sticky="ew")
 
-window.combobox2 = ctk.CTkComboBox(frame_1_left, values=[], button_color= 'orange',command=select_data)
+window.combobox2 = ctk.CTkComboBox(frame_1_left, values=[''], button_color= 'orange',command=select_data)
 window.combobox2.grid(row=2, column=0, padx=10, pady=(10, 10), sticky="ew")
 
-## Create buttons to plot the curve 
+## Create buttons to plot the curve and get the DTW distance
 
 window.get_plot_button = ctk.CTkButton(frame_1_left, text="Plot the curve", command=get_plot)
 window.get_plot_button.grid(row=3, column=0, padx=10, pady=(10, 10), sticky="ew")
+
 
 ######################################################################## SHOW VIDEOS ##################################################################################
 
@@ -333,6 +497,7 @@ window.label_2.grid(row=0, column=0, padx=20, pady=20)
 
 ########################################################################################################################################################################
 
+
 # close the window when we click on the cross
 
 def close_window():
@@ -342,3 +507,4 @@ window.protocol("WM_DELETE_WINDOW", close_window)
 
 # Execution of the main loop
 window.mainloop()
+
