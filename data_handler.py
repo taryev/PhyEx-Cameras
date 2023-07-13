@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import os
 
 
 class MediapipeData:
@@ -113,7 +114,13 @@ class MediapipeData:
 
     def __init__(self, path: str):
         self.path = path
-        self.data = pd.read_csv(path, header=None)
+        file_extension = os.path.splitext(path)[1]
+        if file_extension == ".csv":
+            self.data = pd.read_csv(path, header=None)
+        elif file_extension == ".xlsx":
+            self.data = pd.read_excel(path, header=None)
+        else:
+            raise Exception("File type not supported")
         for col in range(0,6):
             self.data[f'{col}'] = np.nan
         self.data.columns = self._columns_names
@@ -193,6 +200,9 @@ class OpenposeData:
 
     def __init__(self, path: str):
         self.path = path
+        file_extension = os.path.splitext(path)[1]
+        if file_extension != ".npy":
+            raise Exception("File type not supported")
         self.data_npy = np.load(path)
         dataframe = pd.DataFrame(columns = self._columns_names)
         frame_count = self.data_npy.shape[0]
