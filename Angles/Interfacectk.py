@@ -5,14 +5,12 @@ from tkinter import filedialog
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import cv2
 import mediapipe as mp
 import data_handler as dh
 import matplotlib.gridspec as gridspec
 import features as feat
-
 
 mp_drawing=mp.solutions.drawing_utils
 mp_pose=mp.solutions.pose
@@ -38,6 +36,7 @@ file_path1 = ""
 file_path_video = ""
 selected_feature = ""
 canvas = ""
+canvas_score = ""
 list_of_data=[]
 
 # Create tabview
@@ -497,9 +496,155 @@ window.video_button1.grid(row=1, column=0, padx=20, pady=(10,10))
 window.show_video = ctk.CTkButton(frame_2_left, text="Show the video", command=get_video)
 window.show_video.grid(row=2, column=0, padx=20, pady=(10, 10))
 
-##########################################################################################################################################################
+#############################################################################SCORES#############################################################################
 window.label_2 = ctk.CTkLabel(frame_3_left, text="Working on it")
 window.label_2.grid(row=0, column=0, padx=20, pady=20)
+
+def select_exercise():
+    global path_ex
+    global selected_exercise
+    selected_exercise = filedialog.askopenfilename()
+    informations = selected_exercise.split("/")
+    path_ex = informations[len(informations) - 1]
+    if selected_exercise:
+        window.score_button.configure(text=path_ex)
+
+def give_score():
+
+    global canvas_score
+                   
+    if canvas_score:
+        canvas_score.get_tk_widget().grid_remove()
+
+    list_of_data_score=[]
+
+    split_path=path_ex.split("_")
+    exercise_name = split_path[0]
+    number = split_path[5]
+    number = number[:1]
+    
+    file_exercice=pd.read_excel('Features.xlsx',header=None, sheet_name='Exercices')
+
+    num_row_ex, _ = file_exercice.shape
+
+    fig_score, ax =plt.subplots(1,1,figsize = (12.7, 8.3))
+    column_labels=["Name of exercise", "Feature", "Data", "Mark"]
+    data=[[None] * (len(column_labels)) for _ in range(10)]
+
+    c=0
+
+
+    for i in range (0, num_row_ex):
+        if exercise_name==file_exercice.iloc[i,0]:
+            if int(number) == file_exercice.iloc[i,3]:
+
+                #Stock corresponding values from the excel
+
+                good_feature = file_exercice.iloc[i,1]
+                good_data = file_exercice.iloc[i,2]
+                required_value= file_exercice.iloc[i,4]
+                tolerance=file_exercice.iloc[i,5]
+
+                #Find the right list of data
+
+                if len(list_of_data_score) != 0 : 
+                    list_of_data_score=[]
+
+                for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism']:
+                    if good_feature == feature:
+
+                        corresponding_file=pd.read_excel('Features.xlsx',header=None, sheet_name=good_feature)
+                        num_rows_f, _ = corresponding_file.shape
+                    
+                        for i in range (1, num_rows_f):
+                            list_of_data_score.append(corresponding_file.iloc[i,0])
+
+                if good_feature=='Angle':
+                    
+                    def get_points_of_interest(file):
+
+                        selected_joint1 = []
+                        selected_joint2 = []
+                        selected_joint3 = []
+                    
+                        for i,angle in enumerate(list_of_data_score):
+                            if good_data==angle:
+                                selected_joint1=file.iloc[i+1,1]
+                                selected_joint2=file.iloc[i+1,2]
+                                selected_joint3=file.iloc[i+1,3]
+
+                        return selected_joint1, selected_joint2, selected_joint3
+                
+                    angle1, angle2, angle3 = get_points_of_interest(corresponding_file)
+                    
+                    def score_angle(csv1 : str,  joint1 : int, joint2 : int, joint3 : int, angle_to_analyse : int):
+    
+                        if csv1[-3:]=='csv':
+                                data1 = pd.read_csv(csv1, header=None)
+                        elif csv1[-3:]=='lsx':
+                                data1 = pd.read_excel(csv1, header=None)
+
+                        angles = []
+
+                        num_rows1, _ = data1.shape
+
+                        for j in range (0, num_rows1):
+                            
+                            x_a = data1.iloc[j,3 * joint1] 
+                            y_a = data1.iloc[j,3 * joint1 + 1]
+
+                            x_b = data1.iloc[j,3 * joint2] 
+                            y_b = data1.iloc[j,3 * joint2 + 1]
+
+                            x_c = data1.iloc[j,3 * joint3] 
+                            y_c = data1.iloc[j,3 * joint3 + 1]
+
+                            AB = (y_b - y_a)/(x_b - x_a)
+                            BC = (y_c - y_b)/(x_c - x_b)
+
+                            radians = np.arctan2((AB - BC), (1 + AB * BC))
+                            angle = 180 - np.abs(radians*180.0/np.pi)
+                            
+                            angles.append(angle)
+
+
+                        inf_interval = ((100-tolerance)/100)*angle_to_analyse
+                        sup_interval = ((100+tolerance)/100)*angle_to_analyse
+                        count=0
+                        
+                        for angle in angles:
+                            if (angle>=inf_interval) and (angle<=sup_interval) :
+                                count+=1
+
+                        return (count/num_rows1)*100
+                    
+                    mark_angle=score_angle(selected_exercise,int(angle1), int(angle2), int(angle3), required_value)
+
+                    data[c][0]=path_ex
+                    data[c][1]=good_feature
+                    data[c][2]=good_data
+                    data[c][3]=mark_angle
+
+                    c=c+1
+
+    df=pd.DataFrame(data,columns=column_labels)
+    ax.axis('tight')
+    ax.axis('off')
+    ax.table(cellText=df.values,
+            colLabels=df.columns,
+            colColours =["yellow"] * 4,
+            loc="center")
+
+    canvas_score = FigureCanvasTkAgg(fig_score, master=frame_3)
+    canvas_score.draw()
+    canvas_score.get_tk_widget().grid()
+    
+
+window.score_button = ctk.CTkButton(frame_3_left, text="Select the file you want to analyse",command=select_exercise, anchor='center')
+window.score_button.grid(row=1, column=0,padx=10, pady=(10, 10))
+
+window.show_video = ctk.CTkButton(frame_3_left, text="Show the score", command=give_score)
+window.show_video.grid(row=2, column=0, padx=20, pady=(10, 10))
 
 ########################################################################################################################################################################
 
@@ -513,4 +658,3 @@ window.protocol("WM_DELETE_WINDOW", close_window)
 
 # Execution of the main loop
 window.mainloop()
-
