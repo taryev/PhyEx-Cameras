@@ -69,25 +69,30 @@ for file in files:
                 radians2 = np.arctan2((AB2 - BC2), (1 + AB2 * BC2))
                 angle2 = 180 - np.abs(radians2 * 180.0 / np.pi)
 
-                angles1.append(angle1)
-                angles2.append(angle2)
+                angles1 = np.append(angles1, angle1)
+                angles2 = np.append(angles2, angle2)
             except (ZeroDivisionError, RuntimeWarning):
-                angles1.append(np.nan)
-                angles2.append(np.nan)
-
-        angles1 = np.asarray(angles1)
-        angles2 = np.asarray(angles2)
+                angles1 = np.append(angles1, np.nan)
+                angles2 = np.append(angles2, np.nan)
 
         inf_interval = 0.8 * angle_to_analyse
         sup_interval = 1.2 * angle_to_analyse
+        count = 0
+        for angle in angles1:
+            if np.logical_and(angle >= inf_interval, angle <= sup_interval):
+                count += 1
+                print('Knee angle is respected', angle)
+            else:
+                count += 1
+                print('Knee angle is not respected', angle)
+        for angle in angles2:
+            if np.logical_and(angle >= inf_interval, angle <= sup_interval):
+                count += 1
+                print('Elbow angle is respected', angle)
+            else:
+                count += 1
+                print('Elbow angle is not respected', angle)
 
-        valid_angles1 = np.logical_and(np.logical_not(np.isnan(angles1)),
-                                       np.logical_and(angles1 >= inf_interval, angles1 <= sup_interval))
-        valid_angles2 = np.logical_and(np.logical_not(np.isnan(angles2)),
-                                       np.logical_and(angles2 >= inf_interval, angles2 <= sup_interval))
-
-        count = np.count_nonzero(valid_angles1) + np.count_nonzero(valid_angles2)
-        print('angle is respected', (count / num_rows1) * 100)
 
         N1 = 150  # window length
         w1 = 4  # polyorders
@@ -97,14 +102,16 @@ for file in files:
 
         plt.figure()
         plt.subplot(121)
-        plt.plot(angles1, color='purple')
-        plt.plot(angles_filt1, color='orange')
+        plt.plot(angles1, color='purple', label='Knee signal')
+        plt.plot(angles_filt1, color='orange', label='Filtered knee signal')
         plt.title("Knee")
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=1)
 
         plt.subplot(122)
-        plt.plot(angles2, color='blue')
-        plt.plot(angles_filt2, color='red')
+        plt.plot(angles2, color='blue', label='Elbow signal')
+        plt.plot(angles_filt2, color='red',label='Elbow filtered signal')
         plt.title("Elbow")
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=1)
 
         plt.suptitle(file_name)
         plt.tight_layout()
@@ -163,15 +170,23 @@ for file in files:
         for angle in a1:
             if (angle >= inf) and (angle <= sup):
                 count += 1
+                f.write("Knee angle respected ")
                 f.write(f'{angle}\n')
-                f.write("Respected knee angle\n")
+            else:
+                count += 1
+                f.write("Knee angle not respected ")
+                f.write(f'{angle}\n')
         f.write(f'angle is respected {(count / num_rows1) * 100}\n')
         count=0
         for angle in a2:
             if (angle >= inf) and (angle <= sup):
                 count += 1
+                f.write("Elbow angle respected ")
                 f.write(f'{angle}\n')
-                f.write("Respected elbow angle\n")
+            else:
+                count += 1
+                f.write("Elbow angle not respected ")
+                f.write(f'{angle}\n')
         f.write(f'angle is respected {(count / num_rows1) * 100}\n')
         f.write(f'Distance DTW knee: {cost1}\n')
         f.write(f'Distance DTW elbow: {cost2}\n')
@@ -179,17 +194,19 @@ for file in files:
     plt.figure()
 
     plt.subplot(121)
-    plt.plot(a1, color='purple')
-    plt.plot(af1, color='orange')
+    plt.plot(a1, color='purple', label='Knee Signal')
+    plt.plot(af1, color='orange', label='Filtered Knee Signal')
     plt.title("Knee")
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=1)
 
     plt.subplot(122)
-    plt.plot(a2, color='blue')
-    plt.plot(af2, color='red')
+    plt.plot(a2, color='blue', label='Elbow Signal')
+    plt.plot(af2, color='red', label= 'Elbow filtered signal')
     plt.title("Elbow")
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05), shadow=True, ncol=1)
 
-    plt.tight_layout()
     plt.suptitle(file_name)
+    plt.tight_layout()
 
     plt.savefig(os.path.join(output_dir, f'{base_name}_plot.png'))
 
