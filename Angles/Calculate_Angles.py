@@ -65,9 +65,9 @@ for file in files:
                     BC2 = 0.0
 
                 radians1 = np.arctan2((AB1 - BC1), (1 + AB1 * BC1))
-                angle1 = 180 - np.abs(radians1 * 180.0 / np.pi)
+                angle1 = np.round(180 - np.abs(radians1 * 180.0 / np.pi),2)
                 radians2 = np.arctan2((AB2 - BC2), (1 + AB2 * BC2))
-                angle2 = 180 - np.abs(radians2 * 180.0 / np.pi)
+                angle2 = np.round(180 - np.abs(radians2 * 180.0 / np.pi),2)
 
                 angles1 = np.append(angles1, angle1)
                 angles2 = np.append(angles2, angle2)
