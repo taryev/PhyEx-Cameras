@@ -33,6 +33,7 @@ window.geometry(f"{screen_width}x{desired_height}+{0}+{0}")
 # Global variables
 
 file_path1 = ""
+name=""
 file_path_video = ""
 selected_feature = ""
 canvas = ""
@@ -47,8 +48,8 @@ tabview_height = 0.92*desired_height
 window.tabview = ctk.CTkTabview(window, width= tabview_width,  height=tabview_height)
 window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
 window.tabview.grid_rowconfigure(4, weight=1)
-window.tabview.add("Plot curves")
 window.tabview.add("Watch videos")
+window.tabview.add("Plot curves")
 window.tabview.add("All scores")
 
 # Create frames
@@ -93,6 +94,7 @@ frame_3.grid_rowconfigure(4, weight=0)
 
 def select_file1():
     global file_path1
+    global name
     file_path1 = filedialog.askopenfilename()
     informations = file_path1.split("/")
     name = informations[len(informations) - 1]
@@ -108,7 +110,7 @@ def select_feature(event):
         list_of_data=[]
 
     
-    for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism']:
+    for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism','Same_coordinate']:
         if selected_feature == feature:
 
             file=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
@@ -133,6 +135,8 @@ def get_plot():
     if selected_feature=='Angle':
 
         file_angle=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
+
+        print(file_angle)
               
         def read_angle_for_1_csv(csv1 : str,  joint1 : int, joint2 : int, joint3 : int):
             
@@ -416,7 +420,114 @@ def get_plot():
         selected_joint_parallelisme_1, selected_joint_parallelisme_2, selected_joint_parallelisme_3, selected_joint_parallelisme_4=get_points_of_interest_parallelism(file_parallelism)    
 
         calculate_parallel(file_path1, int(selected_joint_parallelisme_1), int(selected_joint_parallelisme_2), int(selected_joint_parallelisme_3),  int(selected_joint_parallelisme_4))
- 
+    
+    if selected_feature=='Same_coordinate':  
+      
+        file_scoord=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
+
+        def get_points_of_interest_scoord(file):
+
+            selected_joint1 = []
+            selected_joint2 = []
+            selected_joint3 = []
+            selected_joint4 = []
+        
+            for i,angle in enumerate(list_of_data):
+                if selected_data==angle:
+                    selected_joint1=file.iloc[i+1,1]
+                    selected_joint2=file.iloc[i+1,2]
+                    selected_joint3=file.iloc[i+1,3]
+                    selected_joint4=file.iloc[i+1,4]
+
+            return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+        
+        selected_point_scoord1, selected_point_scoord2, selected_point_scoord3, selected_point_scoord4 = get_points_of_interest_scoord(file_scoord)
+
+        def same_coordinate(file : str, point1 : int, point2 : int, point3 : int, point4 : int, test ):
+
+            global canvas
+                   
+            if canvas:
+                canvas.get_tk_widget().grid_remove()
+
+            if file[-3:]=='csv':
+                data = pd.read_csv(file, header=None)
+            elif file[-3:]=='lsx':
+                data = pd.read_excel(file, header=None)
+
+            num_rows, _ = data.shape
+
+            AB_x=[]
+            AB_y=[]
+
+            CD_x=[]
+            CD_y=[]
+
+            for j in range (0, num_rows):
+
+                # Stock coordinate from each point
+                        
+                x_a = data.iloc[j,3 * point1] 
+                y_a = data.iloc[j,3 * point1 + 1]
+
+                x_b = data.iloc[j,3 * point2] 
+                y_b = data.iloc[j,3 * point2 + 1]
+
+                x_c = data.iloc[j,3 * point3] 
+                y_c = data.iloc[j,3 * point3 + 1]
+
+                x_d = data.iloc[j,3 * point4] 
+                y_d = data.iloc[j,3 * point4 + 1]
+
+                if test == 'same_x':
+                    AB_x.append(abs((x_b - x_a)/(x_b + x_a)))
+                    CD_x.append(abs((x_d - x_c)/(x_d + x_c)))
+                
+                if test == 'same_y':
+                    AB_y.append(abs((y_b - y_a)/(y_b + y_a)))
+                    CD_y.append(abs((y_d - y_c)/(y_d + y_c)))
+                    
+                if test == "same_xy" :
+
+                    AB_x.append(abs((x_b - x_a)/(x_b + x_a)))
+                    CD_x.append(abs((x_d - x_c)/(x_d + x_c)))
+
+                    AB_y.append(abs((y_b - y_a)/(y_b + y_a)))
+                    CD_y.append(abs((y_d - y_c)/(y_d + y_c)))
+                    
+            
+            fig = plt.figure(figsize=(12.7, 8.3))
+
+            if len(AB_x)!=0:
+                plt.plot(AB_x, color= 'blue', label = 'left x')
+                plt.plot(CD_x, color = 'red', label = 'right x')  
+            if len(AB_y)!=0:   
+                plt.plot(AB_y, color= 'green', label = 'left y')
+                plt.plot(CD_y, color = 'orange', label = 'right y') 
+                
+            canvas = FigureCanvasTkAgg(fig, master=frame_1)
+            canvas.draw()
+            canvas.get_tk_widget().grid()
+        
+        split_path=name.split("_")
+        print(split_path)
+        exercise_name = split_path[0]
+        print(exercise_name)
+        
+        file_exercice=pd.read_excel('Features.xlsx',header=None, sheet_name='Exercices')
+
+        num_row_ex, _ = file_exercice.shape
+
+        print(file_exercice.iloc[5,2])
+
+        for i in range (0, num_row_ex):
+            if exercise_name==file_exercice.iloc[i,0]:
+                if file_exercice.iloc[i,1]=='Same_coordinate':
+                    if file_exercice.iloc[i,2] == selected_data:
+                        name_test= file_exercice.iloc[i,4]
+
+        same_coordinate(file_path1, int(selected_point_scoord1), int(selected_point_scoord2), int(selected_point_scoord3), int(selected_point_scoord4), name_test)
+
 # Create the button to select the file
 
 window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260, anchor='center')
@@ -425,7 +536,7 @@ window.file_button1.grid(row=0, column=0, padx=20, pady=(10, 10))
 
 # Create the combobox to select the points
 
-features=['Select the features ','Angle', 'Distance', 'Alignment', 'Parallelism']
+features=['Select the features ','Angle', 'Distance', 'Alignment', 'Parallelism','Same_coordinate']
     
 window.combobox1 = ctk.CTkComboBox(frame_1_left, values=features, button_color= 'orange',command=select_feature)
 window.combobox1.grid(row=1, column=0,padx=10, pady=(10, 10), sticky="ew")
@@ -533,7 +644,6 @@ def give_score():
 
     c=0
 
-
     for i in range (0, num_row_ex):
         if exercise_name==file_exercice.iloc[i,0]:
             if int(number) == file_exercice.iloc[i,3]:
@@ -638,7 +748,6 @@ def give_score():
     canvas_score = FigureCanvasTkAgg(fig_score, master=frame_3)
     canvas_score.draw()
     canvas_score.get_tk_widget().grid()
-    
 
 window.score_button = ctk.CTkButton(frame_3_left, text="Select the file you want to analyse",command=select_exercise, anchor='center')
 window.score_button.grid(row=1, column=0,padx=10, pady=(10, 10))
