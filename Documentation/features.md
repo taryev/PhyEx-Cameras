@@ -23,9 +23,8 @@ op = OpenposeData("BRK4_1686654805_ID_Guitar_cam_4.npy")
 ```
 These constructors return Pandas DataFrames. Learn how to manipulate those objects with [Pandas API Reference](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 
-MediapipeData objects allow only csv files with specific format.   
+MediapipeData objects allow only csv and xlsx files with specific format.   
 OpenposeData objects allow only npy files with specific format.   
-🏗 Future: xlsx support for Mediapipe data.
 #### Accessing data
 Landmarks name and indexes can be found [here](landmarks.md).  
 ⚠️ For now, Mediapipe and Openpose landmarks don't have the same name.  
@@ -45,6 +44,7 @@ neckz_2 = mp.get_by_index(33, True).iloc[45,2]
 ```
 
 ## Angles
+Calculate angles using atan2 function.
 ### Usage examples
 ```py
 import data_handler as dh
@@ -59,6 +59,7 @@ angle = features.get_angle(mp_rhip, mp_rknee, mp_rankle)
 ```
 
 ## Distance
+Calculate euclidean distance between two points.
 ### Usage examples
 
 ```py
@@ -99,11 +100,23 @@ plt.plot(diff_per, label="difference%")
 plt.legend()
 plt.show()
 ```
+This example shows also how to calculate the difference between two distances.
 ## Parallelism
+Estimate the difference between slopes.
 ### Usage examples
+```py
+from matplotlib import pyplot as plt
+import data_handler as dh
+import features as ft
 
+mp_clmb = dh.MediapipeData("/Users/quentinveyrat/Downloads/CLMB_1684487736_ID_Physio_cam_4.xlsx")
+para, slopes = ft.get_parallelism(mp_clmb.get_by_index(11), mp_clmb.get_by_index(15), mp_clmb.get_by_index(12), mp_clmb.get_by_index(16))
+
+plt.plot(para)
+```
 
 ## Alignment
+Calculate alignment between n angles using correlation.
 ### Usage examples
 
 ```py
