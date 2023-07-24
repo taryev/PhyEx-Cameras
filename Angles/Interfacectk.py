@@ -12,8 +12,8 @@ import data_handler as dh
 import matplotlib.gridspec as gridspec
 import features as feat
 
-mp_drawing=mp.solutions.drawing_utils
-mp_pose=mp.solutions.pose
+mp_drawing = mp.solutions.drawing_utils
+mp_pose = mp.solutions.pose
 
 ctk.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 ctk.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -25,7 +25,7 @@ window.title("Interface Physical Rehabilitation")
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
     
-desired_height=int(screen_height*0.9)
+desired_height = int(screen_height*0.9)
 
 # Configuration the size of the interface to match the screen
 window.geometry(f"{screen_width}x{desired_height}+{0}+{0}")
@@ -33,19 +33,19 @@ window.geometry(f"{screen_width}x{desired_height}+{0}+{0}")
 # Global variables
 
 file_path1 = ""
-name=""
+name = ""
 file_path_video = ""
 selected_feature = ""
 canvas = ""
 canvas_score = ""
-list_of_data=[]
+list_of_data = []
 
 # Create tabview
 
 tabview_width = 0.97*screen_width
 tabview_height = 0.92*desired_height
 
-window.tabview = ctk.CTkTabview(window, width= tabview_width,  height=tabview_height)
+window.tabview = ctk.CTkTabview(window, width = tabview_width,  height =tabview_height)
 window.tabview.grid(row=0, column=0, rowspan=4, sticky="nsew", padx=20)
 window.tabview.grid_rowconfigure(4, weight=1)
 window.tabview.add("Watch videos")
@@ -61,7 +61,7 @@ frame_right_width = 0.67 * tabview_width
 frame_1_left = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=frame_left_width, height = frame_height)
 frame_1_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_1_left.grid_propagate(False)
-frame_1_left.grid_rowconfigure((0,1,2,3,4,5), weight=1)
+frame_1_left.grid_rowconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
 frame_1 = ctk.CTkFrame(window.tabview.tab("Plot curves"), width=frame_right_width, height = frame_height)
 frame_1.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
@@ -106,8 +106,8 @@ def select_feature(event):
     global list_of_data
     selected_feature = window.combobox1.get()
 
-    if len(list_of_data) != 0 : 
-        list_of_data=[]
+    if len(list_of_data) != 0:
+        list_of_data = []
 
     
     for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism','Same_coordinate']:
@@ -135,8 +135,6 @@ def get_plot():
     if selected_feature=='Angle':
 
         file_angle=pd.read_excel('Features.xlsx',header=None, sheet_name=selected_feature)
-
-        print(file_angle)
               
         def read_angle_for_1_csv(csv1 : str,  joint1 : int, joint2 : int, joint3 : int):
             
@@ -175,7 +173,9 @@ def get_plot():
 
             fig = plt.figure(figsize=(0.015*frame_right_width, 0.015*frame_height))
             plt.plot(angles1, color='purple')
-            plt.title("Angle")
+            plt.title("Measured angle")
+            plt.ylabel('Angle in degree')
+            plt.xlabel('Frames')
 
             canvas = FigureCanvasTkAgg(fig, master=frame_1)
             canvas.draw()
@@ -229,9 +229,9 @@ def get_plot():
             
             # Read the CSV or xlsx file
             if csv[-3:]=='csv':
-                    data = pd.read_csv(csv, header=None)
+                data = pd.read_csv(csv, header=None)
             elif csv[-3:]=='lsx':
-                    data = pd.read_excel(csv, header=None)
+                data = pd.read_excel(csv, header=None)
 
             AB = []
             CD = []
@@ -263,38 +263,39 @@ def get_plot():
                     CD.append(CD_val)
 
                     # We calculate the pourcentage of difference
-                    ecart_val = abs(AB_val - CD_val) / ((AB_val + CD_val) / 2) * 100
+                    avg = (AB_val + CD_val) / 2
+                    ecart_val = abs((AB_val - CD_val) / avg) * 100
                     ecart.append(ecart_val)
 
             
 
             fig = plt.figure(figsize=(12.7, 8.3))
-            gs = gridspec.GridSpec(7, 1, height_ratios=[1, 1, 1, 2, 2, 2, 2])
+            gs = gridspec.GridSpec(7, 1, height_ratios=[1, 1, 1, 1, 1, 1, 1])
 
             # Plot AB and CD
             ax1 = plt.subplot(gs[0:3])  # adjust the range here
             ax1.plot(range(len(AB)), AB, label="AB")
             ax1.plot(range(len(CD)), CD, label="CD", color='orange')
-            ax1.set_xlabel('Index')
             ax1.set_ylabel('Distance')
-            ax1.set_title('Distances AB and CD')
+            ax1.set_title('Distances AB (right side) and CD (left side)')
             ax1.legend()
             ax1.set_xlim([0, len(AB)])  # X limits from 0 to the length of AB
             ax1.set_ylim([0, max(max(AB), max(CD)) * 1.1])  # Y limits from 0 to 110% of the max value
 
             # Plot the % of difference between AB and CD
             ax2 = plt.subplot(gs[4:6])  # adjust the range here
-            ecart_above_threshold = [val if val > 10 else np.nan for val in ecart]
-            ecart_below_threshold = [val if val <= 10 else np.nan for val in ecart]
-            ax2.plot(range(len(ecart)), ecart_below_threshold, label="Ecart <= 10%", color='blue')
-            ax2.plot(range(len(ecart)), ecart_above_threshold, label="Ecart > 10%", color='red')
+            ecart_above_threshold = [val if val > 20 else np.nan for val in ecart]
+            ecart_below_threshold = [val if val <= 20 else np.nan for val in ecart]
+            ax2.plot(range(len(ecart)), ecart_below_threshold, label="Ecart <= 20%", color='green')
+            ax2.plot(range(len(ecart)), ecart_above_threshold, label="Ecart > 20%", color='red')
+            ax2.set_xlim([0, len(ecart)])
             ax2.set_ylim([0, max(ecart) * 1.1])  # Y limits from 0 to 110% of the max value
-            ax2.set_xlabel('Index')
-            ax2.set_ylabel('Pourcentage de différence')
+            ax2.set_xlabel('Frames')
+            ax2.set_ylabel('Percent')
+            ax2.set_title('Percentage difference between the two sides')
             ax2.legend()
 
-            
-            plt.subplots_adjust(hspace=1.2)
+            plt.subplots_adjust()
 
             canvas = FigureCanvasTkAgg(fig, master=frame_1)
             canvas.draw()
@@ -334,6 +335,9 @@ def get_plot():
 
         fig = plt.figure(figsize=(12.7, 8.3))
         plt.plot(alignement, color='orange')
+        plt.title("Measured alignment")
+        plt.ylabel('Linear correlation coefficient')
+        plt.xlabel('Frames')
 
         canvas = FigureCanvasTkAgg(fig, master=frame_1)
         canvas.draw()
@@ -356,6 +360,8 @@ def get_plot():
                 data = pd.read_excel(file, header=None)
 
             slope_diff_percentages = []
+            AB = []
+            CD = []
 
             num_rows, _ = data.shape
 
@@ -379,23 +385,42 @@ def get_plot():
                         AB_slope = (y_b - y_a) / (x_b - x_a)
                         CD_slope = (y_d - y_c) / (x_d - x_c)
 
-
-                        slope_diff_percentage = abs(AB_slope - CD_slope) / ((AB_slope + CD_slope) / 2) * 100
-
-                        slope_diff_percentages.append(slope_diff_percentage)
-
-            parallelism_values = [abs(1 - diff / 100) for diff in slope_diff_percentages]
-
+                        AB.append(AB_slope)
+                        CD.append(CD_slope)
+                        
+                        avg = (abs(AB_slope) + abs(CD_slope)) / 2
+                
+                        slope_diff_percentages.append(abs((abs(AB_slope) - abs(CD_slope)) / avg) * 100)
 
             fig = plt.figure(figsize=(12.7, 8.3))
-            plt.plot(range(len(parallelism_values)), parallelism_values, label="Parallelisme", color='purple')
+            gs = gridspec.GridSpec(7, 1, height_ratios=[1, 1, 1, 1, 1, 1, 1])
 
-        
+            # Plot AB and CD
+            ax1 = plt.subplot(gs[0:3])  # adjust the range here
+            ax1.plot(range(len(AB)), AB, label="AB")
+            ax1.plot(range(len(CD)), CD, label="CD", color='orange')
+            ax1.set_xlabel('Frames')
+            ax1.set_ylabel('Slopes')
+            ax1.set_title('Directrix of the curve AB (right side) and the curve CD (left side)')
+            ax1.legend()
+            ax1.set_xlim([0, len(AB)])  # X limits from 0 to the length of AB
+            ax1.set_ylim([min(min(AB), min(CD)) *1.1, max(max(AB), max(CD)) * 1.1])  # Y limits from 0 to 110% of the max value
 
-            plt.xlabel('Index')
-            plt.ylabel('Parallelisme')
-            plt.title('Percentage Difference Between the Two Line Slopes - MEDIA PIPE')
-            plt.legend()
+            # Plot the % of difference between AB and CD
+            ax2 = plt.subplot(gs[4:6])  # adjust the range here
+            ecart_above_threshold = [val if val > 20 else np.nan for val in slope_diff_percentages]
+            ecart_below_threshold = [val if val <= 20 else np.nan for val in slope_diff_percentages]
+            ax2.plot(range(len(slope_diff_percentages)), ecart_below_threshold, label="Ecart <= 20%", color='green')
+            ax2.plot(range(len(slope_diff_percentages)), ecart_above_threshold, label="Ecart > 20%", color='red')
+            ax2.set_xlim([0, len(slope_diff_percentages)])
+            ax2.set_ylim([0, max(slope_diff_percentages) * 1.1])  # Y limits from 0 to 110% of the max value
+            ax2.set_xlabel('Frames')
+            ax2.set_ylabel('Percent')
+            ax2.set_title('Percentage difference between the two sides')
+            ax2.legend()
+
+            plt.subplots_adjust()
+
 
             canvas = FigureCanvasTkAgg(fig, master=frame_1)
             canvas.draw()
@@ -499,26 +524,28 @@ def get_plot():
             fig = plt.figure(figsize=(12.7, 8.3))
 
             if len(AB_x)!=0:
-                plt.plot(AB_x, color= 'blue', label = 'left x')
-                plt.plot(CD_x, color = 'red', label = 'right x')  
+                plt.plot(AB_x, color= 'blue', label = 'difference in abscissa on the left side')
+                plt.plot(CD_x, color = 'red', label = 'difference in abscissa on the right side')
+                plt.legend(loc='upper right')  
             if len(AB_y)!=0:   
-                plt.plot(AB_y, color= 'green', label = 'left y')
-                plt.plot(CD_y, color = 'orange', label = 'right y') 
-                
+                plt.plot(AB_y, color= 'green', label = 'difference in ordinate on the left side')
+                plt.plot(CD_y, color = 'orange', label = 'difference in ordinate on the right side') 
+                plt.legend(loc='upper right')
+
+            plt.title("Difference in abscissa or ordinate between two points")
+            plt.ylabel('Gap')
+            plt.xlabel('Frames')
+
             canvas = FigureCanvasTkAgg(fig, master=frame_1)
             canvas.draw()
             canvas.get_tk_widget().grid()
         
         split_path=name.split("_")
-        print(split_path)
         exercise_name = split_path[0]
-        print(exercise_name)
         
         file_exercice=pd.read_excel('Features.xlsx',header=None, sheet_name='Exercices')
 
         num_row_ex, _ = file_exercice.shape
-
-        print(file_exercice.iloc[5,2])
 
         for i in range (0, num_row_ex):
             if exercise_name==file_exercice.iloc[i,0]:
@@ -767,3 +794,4 @@ window.protocol("WM_DELETE_WINDOW", close_window)
 
 # Execution of the main loop
 window.mainloop()
+
