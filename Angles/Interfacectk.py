@@ -666,7 +666,7 @@ def give_score():
     num_row_ex, _ = file_exercice.shape
 
     fig_score, ax =plt.subplots(1,1,figsize = (12.7, 8.3))
-    column_labels=["Name of exercise", "Feature", "Data", "Mark"]
+    column_labels=["Name of exercise", "Feature", "Data", "Mark",'Commentary']
     data=[[None] * (len(column_labels)) for _ in range(10)]
 
     c=0
@@ -687,7 +687,7 @@ def give_score():
                 if len(list_of_data_score) != 0 : 
                     list_of_data_score=[]
 
-                for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism']:
+                for feature in ['Angle', 'Distance', 'Alignment', 'Parallelism','Same_coordinate']:
                     if good_feature == feature:
 
                         corresponding_file=pd.read_excel('Features.xlsx',header=None, sheet_name=good_feature)
@@ -755,22 +755,190 @@ def give_score():
 
                         return (count/num_rows1)*100
                     
-                    mark_angle=score_angle(selected_exercise,int(angle1), int(angle2), int(angle3), required_value)
+                    mark_angle=round(score_angle(selected_exercise,int(angle1), int(angle2), int(angle3), required_value),1)
 
-                    data[c][0]=path_ex
+                    data[c][0]=[exercise_name, number]
                     data[c][1]=good_feature
                     data[c][2]=good_data
                     data[c][3]=mark_angle
 
                     c=c+1
 
+                if good_feature == 'Distance':
+
+                    def get_points_of_interest_distance(file):
+
+                        selected_joint1 = []
+                        selected_joint2 = []
+                        selected_joint3 = []
+                        selected_joint4 = []
+                    
+                        for i,angle in enumerate(list_of_data_score):
+                            if good_data==angle:
+                                selected_joint1=file.iloc[i+1,1]
+                                selected_joint2=file.iloc[i+1,2]
+                                selected_joint3=file.iloc[i+1,3]
+                                selected_joint4=file.iloc[i+1,4]
+
+                        return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+                
+                    d1,d2,d3,d4 = get_points_of_interest_distance(corresponding_file)
+
+                    def score_distances(csv: str, point_a: int, point_b: int, point_c: int, point_d: int):
+                                                
+                        # Read the CSV or xlsx file
+                        if csv[-3:]=='csv':
+                            data = pd.read_csv(csv, header=None)
+                        elif csv[-3:]=='lsx':
+                            data = pd.read_excel(csv, header=None)
+
+                        AB = []
+                        CD = []
+                        ecart = []
+
+                        num_rows, _ = data.shape
+
+                        for j in range(num_rows):
+
+                            if (j in data.index):
+                                # We get the coordinates for each point
+                                x_a = data.iloc[j, 3 * point_a]
+                                y_a = data.iloc[j, 3 * point_a + 1]
+
+                                x_b = data.iloc[j, 3 * point_b]
+                                y_b = data.iloc[j, 3 * point_b + 1]
+
+                                x_c = data.iloc[j, 3 * point_c]
+                                y_c = data.iloc[j, 3 * point_c + 1]
+
+                                x_d = data.iloc[j, 3 * point_d]
+                                y_d = data.iloc[j, 3 * point_d + 1]
+
+                                AB_val = np.sqrt((x_b - x_a) ** 2 + (y_b - y_a) ** 2)
+                                CD_val = np.sqrt((x_d - x_c) ** 2 + (y_d - y_c) ** 2)
+
+                                # We add the calculated distances to the AB and CD lists
+                                AB.append(AB_val)
+                                CD.append(CD_val)
+
+                                # We calculate the pourcentage of difference
+                                avg = (AB_val + CD_val) / 2
+                                ecart_val = abs((AB_val - CD_val) / avg) * 100
+                                ecart.append(ecart_val)
+                        
+                        return sum(ecart)/len(ecart)   
+
+                    mark_distance = round(score_distances(selected_exercise, int(d1), int(d2), int(d3), int(d4)),1)
+
+                    data[c][0]=[exercise_name, number]
+                    data[c][1]=good_feature
+                    data[c][2]=good_data
+                    data[c][3]=mark_distance
+
+                    if mark_distance<20 : data[c][4]='Distance is respected'
+                    else : data[c][4]='Distance is not respected'
+
+                    c=c+1
+
+                if good_feature == 'Parallelism':
+
+                    def get_points_of_interest_parallelism(file):
+
+                        selected_joint1 = []
+                        selected_joint2 = []
+                        selected_joint3 = []
+                        selected_joint4 = []
+                    
+                        for i,angle in enumerate(list_of_data_score):
+                            if good_data==angle:
+                                selected_joint1=file.iloc[i+1,1]
+                                selected_joint2=file.iloc[i+1,2]
+                                selected_joint3=file.iloc[i+1,3]
+                                selected_joint4=file.iloc[i+1,4]
+
+                        return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+                
+                    p1,p2,p3,p4 = get_points_of_interest_distance(corresponding_file)
+
+                    
+                    def score_parallel(file: str, point_a: int, point_b: int, point_c: int, point_d: int):
+
+                        if file[-3:]=='csv':
+                            data = pd.read_csv(file, header=None)
+                        elif file[-3:]=='lsx':
+                            data = pd.read_excel(file, header=None)
+
+                        slope_diff_percentages = []
+                        AB = []
+                        CD = []
+
+                        num_rows, _ = data.shape
+
+                        for j in range(num_rows):
+                            if (j in data.index):
+
+                                x_a = data.iloc[j, 3 * point_a]
+                                y_a = data.iloc[j, 3 * point_a + 1]
+
+                                x_b = data.iloc[j, 3 * point_b]
+                                y_b = data.iloc[j, 3 * point_b + 1]
+
+                                x_c = data.iloc[j, 3 * point_c]
+                                y_c = data.iloc[j, 3 * point_c + 1]
+
+                                x_d = data.iloc[j, 3 * point_d]
+                                y_d = data.iloc[j, 3 * point_d + 1]
+
+
+                                if (x_b - x_a) != 0 and (x_d - x_c) != 0:
+                                    AB_slope = (y_b - y_a) / (x_b - x_a)
+                                    CD_slope = (y_d - y_c) / (x_d - x_c)
+
+                                    AB.append(AB_slope)
+                                    CD.append(CD_slope)
+                                    
+                                    avg = (abs(AB_slope) + abs(CD_slope)) / 2
+                            
+                                    slope_diff_percentages.append(abs((abs(AB_slope) - abs(CD_slope)) / avg) * 100)
+                        
+                        return sum(slope_diff_percentages)/len(slope_diff_percentages)   
+
+                    mark_parallel = round(score_parallel(selected_exercise, int(p1), int(p2), int(p3), int(p4)),1)
+
+                    data[c][0]=[exercise_name, number]
+                    data[c][1]=good_feature
+                    data[c][2]=good_data
+                    data[c][3]=mark_parallel
+
+                    if mark_parallel<20 : data[c][4]='Parallelism is respected'
+                    else : data[c][4]='Parallelism is not respected'
+
+                    c=c+1
+
+                for i in range (10):
+                    if data[i][0] is None or data[i][0]==' ':
+                        data[i][3] = ''
+                    
+                    
     df=pd.DataFrame(data,columns=column_labels)
     ax.axis('tight')
     ax.axis('off')
-    ax.table(cellText=df.values,
+    table = ax.table(cellText=df.values,
             colLabels=df.columns,
-            colColours =["yellow"] * 4,
-            loc="center")
+            cellLoc='center',
+            colColours =["yellow"] * 5,
+            loc="center",
+            rowLoc="center")
+
+    table.auto_set_font_size(False)
+    table.set_fontsize(15)  
+    table.scale(1, 1.5)
+
+    last_column_width = 0.3 
+    last_column_cells = [key for key in table._cells if key[1] == 4]  
+    for key in last_column_cells:
+        table._cells[key]._width = last_column_width
+
 
     canvas_score = FigureCanvasTkAgg(fig_score, master=frame_3)
     canvas_score.draw()
