@@ -38,6 +38,8 @@ file_path_video = ""
 selected_feature = ""
 canvas = ""
 canvas_score = ""
+selected_angle = ""
+state = "on"
 list_of_data = []
 
 # Create tabview
@@ -51,6 +53,7 @@ window.tabview.grid_rowconfigure(4, weight=1)
 window.tabview.add("Watch videos")
 window.tabview.add("Plot curves")
 window.tabview.add("All scores")
+window.tabview.add("Angles on live")
 
 # Create frames
 
@@ -87,6 +90,16 @@ frame_3 = ctk.CTkFrame(window.tabview.tab("All scores"), width=frame_right_width
 frame_3.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
 frame_3.grid_propagate(False)
 frame_3.grid_rowconfigure(4, weight=0)
+
+frame_4_left = ctk.CTkFrame(window.tabview.tab("Angles on live"), width=frame_left_width, height = frame_height)
+frame_4_left.grid(row=0, column=0, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_4_left.grid_propagate(False)
+frame_4_left.grid_rowconfigure(4, weight=0)
+
+frame_4 = ctk.CTkFrame(window.tabview.tab("Angles on live"), width=frame_right_width, height = frame_height)
+frame_4.grid(row=0, column=1, rowspan=4, sticky="nsew",padx=20, pady=20)
+frame_4.grid_propagate(False)
+frame_4.grid_rowconfigure(4, weight=0)
 
 ######################################################################## PLOT CURVES ##################################################################################
 
@@ -781,7 +794,7 @@ def give_score():
                                 selected_joint4=file.iloc[i+1,4]
 
                         return selected_joint1, selected_joint2, selected_joint3, selected_joint4
-                
+                    
                     d1,d2,d3,d4 = get_points_of_interest_distance(corresponding_file)
 
                     def score_distances(csv: str, point_a: int, point_b: int, point_c: int, point_d: int):
@@ -849,8 +862,8 @@ def give_score():
                         selected_joint3 = []
                         selected_joint4 = []
                     
-                        for i,angle in enumerate(list_of_data_score):
-                            if good_data==angle:
+                        for i,para in enumerate(list_of_data_score):
+                            if good_data==para:
                                 selected_joint1=file.iloc[i+1,1]
                                 selected_joint2=file.iloc[i+1,2]
                                 selected_joint3=file.iloc[i+1,3]
@@ -858,8 +871,7 @@ def give_score():
 
                         return selected_joint1, selected_joint2, selected_joint3, selected_joint4
                 
-                    p1,p2,p3,p4 = get_points_of_interest_distance(corresponding_file)
-
+                    p1,p2,p3,p4 = get_points_of_interest_parallelism(corresponding_file)
                     
                     def score_parallel(file: str, point_a: int, point_b: int, point_c: int, point_d: int):
 
@@ -949,6 +961,131 @@ window.score_button.grid(row=1, column=0,padx=10, pady=(10, 10))
 
 window.show_video = ctk.CTkButton(frame_3_left, text="Show the score", command=give_score)
 window.show_video.grid(row=2, column=0, padx=20, pady=(10, 10))
+
+##########################################################################ANGLES ON LIVE##############################################################################################
+
+
+list_of_data_angle=[]
+file_angle=pd.read_excel('Features.xlsx',header=None, sheet_name='Angle')
+row,col = file_angle.shape
+for i in range (1, row):
+    list_of_data_angle.append(file_angle.iloc[i,0])
+
+def select_angle(event):
+    global selected_angle
+    selected_angle = window.combobox_angle.get()
+
+def get_webcam():
+
+    def get_points_of_interest(file):
+
+        selected_joint1 = []
+        selected_joint2 = []
+        selected_joint3 = []
+                        
+        for i,angle in enumerate(list_of_data_angle):
+            
+            if selected_angle==angle:
+                selected_joint1=file.iloc[i+1,1]
+                selected_joint2=file.iloc[i+1,2]
+                selected_joint3=file.iloc[i+1,3]
+
+        return selected_joint1, selected_joint2, selected_joint3
+                    
+    angle1, angle2, angle3 = get_points_of_interest(file_angle)
+    
+    def calculate_angle(a,b,c):
+        a = np.array(a) # First
+        b = np.array(b) # Mid
+        c = np.array(c) # End
+        
+        radians = np.arctan2(c[1]-b[1], c[0]-b[0]) - np.arctan2(a[1]-b[1], a[0]-b[0])
+        angle = np.abs(radians*180.0/np.pi)
+        
+        if angle >180.0:
+            angle = 360-angle
+            
+        return angle 
+
+    def show_angle_on_live(cap, index1, index2, index3):
+
+        if not hasattr(show_angle_on_live, 'canvas2_created'):
+            
+            show_angle_on_live.canvas2 = tk.Canvas(frame_4, width=1300, height=800)
+            show_angle_on_live.canvas2.grid(row=4, column=0, padx=(10, 10), pady=(10, 10), sticky="nsew")
+            show_angle_on_live.canvas2_created = True
+
+        ## Setup mediapipe instance
+        with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
+            while cap.isOpened():
+                _, frame = cap.read()
+                
+                # Recolor image to RGB
+                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                image.flags.writeable = False
+            
+                # Make detection
+                results = pose.process(image)
+            
+                # Recolor back to BGR
+                image.flags.writeable = True
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                
+                # Extract landmarks
+                try:
+                    landmarks = results.pose_landmarks.landmark
+                    
+                    # Get coordinates
+                    point1 = [landmarks[index1].x, landmarks[index1].y]
+                    point2 = [landmarks[index2].x, landmarks[index2].y]
+                    point3 = [landmarks[index3].x, landmarks[index3].y]
+                    
+                    # Calculate angle
+                    angle = calculate_angle(point1, point2, point3)
+                    
+                    # Visualize angle
+                    cv2.putText(image, str(angle), 
+                                tuple(np.multiply(point2, [640, 480]).astype(int)), 
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2, cv2.LINE_AA
+                                        )
+                            
+                except:
+                    pass
+                
+                
+                # Render detections
+                mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_pose.POSE_CONNECTIONS,
+                                        mp_drawing.DrawingSpec(color=(245,117,66), thickness=2, circle_radius=2), 
+                                        mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2) 
+                                        )               
+
+
+                photo = ImageTk.PhotoImage(image=Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)))
+                show_angle_on_live.canvas2.create_image(0, 0, image=photo, anchor=tk.NW)
+                show_angle_on_live.canvas2.photo = photo
+                
+                window.update()
+
+                if state=='off':
+                    break
+
+            cap.release()
+            cv2.destroyAllWindows()
+
+    show_angle_on_live(cv2.VideoCapture(0), int(angle1), int(angle2), int(angle3))
+
+def close_webcam():
+    global state
+    state = 'off'
+
+window.combobox_angle = ctk.CTkComboBox(frame_4_left, values=list_of_data_angle, button_color= 'orange',command=select_angle)
+window.combobox_angle.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="ew")
+
+window.show_webcam = ctk.CTkButton(frame_4_left, text="Open the webcam", command=get_webcam)
+window.show_webcam.grid(row=2, column=0, padx=20, pady=(10, 10))
+
+window.close_webcam = ctk.CTkButton(frame_4_left, text="Close the webcam", command=close_webcam)
+window.close_webcam.grid(row=3, column=0, padx=20, pady=(10, 10))
 
 ########################################################################################################################################################################
 
