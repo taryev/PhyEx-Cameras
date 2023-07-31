@@ -336,7 +336,7 @@ def get_plot():
             return list
 
         list_of_points_to_test=get_points_of_interest_alignment(file_alignment)
-
+      
         data = dh.MediapipeData(file_path1)
 
         list_with_name = []
@@ -573,7 +573,6 @@ def get_plot():
 window.file_button1 = ctk.CTkButton(frame_1_left, text="Select the file you want to analyse", command=select_file1, width= 260, anchor='center')
 window.file_button1.grid(row=0, column=0, padx=20, pady=(10, 10))
 
-
 # Create the combobox to select the points
 
 features=['Select the features ','Angle', 'Distance', 'Alignment', 'Parallelism','Same_coordinate']
@@ -687,7 +686,7 @@ def give_score():
     for i in range (0, num_row_ex):
         if exercise_name==file_exercice.iloc[i,0]:
             if int(number) == file_exercice.iloc[i,3]:
-
+                
                 #Stock corresponding values from the excel
 
                 good_feature = file_exercice.iloc[i,1]
@@ -706,8 +705,8 @@ def give_score():
                         corresponding_file=pd.read_excel('Features.xlsx',header=None, sheet_name=good_feature)
                         num_rows_f, _ = corresponding_file.shape
                     
-                        for i in range (1, num_rows_f):
-                            list_of_data_score.append(corresponding_file.iloc[i,0])
+                        for j in range (1, num_rows_f):
+                            list_of_data_score.append(corresponding_file.iloc[j,0])
 
                 if good_feature=='Angle':
                     
@@ -927,6 +926,131 @@ def give_score():
 
                     c=c+1
 
+                if good_feature == 'Alignment' :
+
+                    def get_points_of_interest_alignment_score(file):
+
+                        list=[]
+                            
+                        for i,angle in enumerate(list_of_data_score):      
+                            if good_data==angle:
+                                for j in range(1,7):
+                                    if pd.notna(file.iloc[i+1, j]):
+                                        list.append(file.iloc[i+1,j])
+                        
+                        return list
+
+                    list_of_points_score=get_points_of_interest_alignment_score(corresponding_file)
+
+                    dataMP = dh.MediapipeData(selected_exercise)
+
+                    list_with_name = []
+
+                    for point in list_of_points_score:
+                        list_with_name.append(dataMP.get_by_index(point))
+                    
+                    alignement = feat.get_point_alignment(list_with_name)
+
+                    mark_alignement= round(sum(alignement)/len(alignement),1)
+                    
+                    data[c][0]=[exercise_name, number]
+                    data[c][1]=good_feature
+                    data[c][2]=good_data
+                    data[c][3]=mark_alignement
+
+                    if (mark_alignement<=1 and mark_alignement>0.8) or (mark_alignement>=-1 and mark_alignement<-0.8) : data[c][4]='Alignment is respected'
+                    else : data[c][4]='Alignment is not respected'
+
+                    c=c+1
+
+                if good_feature == 'Same_coordinate' :
+
+                    def get_points_of_interest_coord_score(file):
+
+                        selected_joint1 = []
+                        selected_joint2 = []
+                        selected_joint3 = []
+                        selected_joint4 = []
+                    
+                        for i,angle in enumerate(list_of_data_score):
+                            if good_data==angle:
+                                selected_joint1=file.iloc[i+1,1]
+                                selected_joint2=file.iloc[i+1,2]
+                                selected_joint3=file.iloc[i+1,3]
+                                selected_joint4=file.iloc[i+1,4]
+
+                        return selected_joint1, selected_joint2, selected_joint3, selected_joint4
+                    
+                    selected_point_scoord1, selected_point_scoord2, selected_point_scoord3, selected_point_scoord4 = get_points_of_interest_coord_score(corresponding_file)
+
+                    def same_coordinate(file : str, point1 : int, point2 : int, point3 : int, point4 : int, test ):
+                        
+                        if file[-3:]=='csv':
+                            data = pd.read_csv(file, header=None)
+                        elif file[-3:]=='lsx':
+                            data = pd.read_excel(file, header=None)
+
+                        num_rows, _ = data.shape
+
+                        AB_x=[]
+                        AB_y=[]
+
+                        CD_x=[]
+                        CD_y=[]
+
+                        for j in range (0, num_rows):
+
+                            # Stock coordinate from each point
+                                    
+                            x_a = data.iloc[j,3 * point1] 
+                            y_a = data.iloc[j,3 * point1 + 1]
+
+                            x_b = data.iloc[j,3 * point2] 
+                            y_b = data.iloc[j,3 * point2 + 1]
+
+                            x_c = data.iloc[j,3 * point3] 
+                            y_c = data.iloc[j,3 * point3 + 1]
+
+                            x_d = data.iloc[j,3 * point4] 
+                            y_d = data.iloc[j,3 * point4 + 1]
+                            
+                            AB_x.append(abs((x_b - x_a)/(x_b + x_a)))
+                            CD_x.append(abs((x_d - x_c)/(x_d + x_c)))
+
+                            AB_y.append(abs((y_b - y_a)/(y_b + y_a)))
+                            CD_y.append(abs((y_d - y_c)/(y_d + y_c)))
+
+
+                        if test == 'same_x':
+
+                            avgAB_x = round(sum(AB_x)/len(AB_x),3)
+                            avgCD_x = round(sum(CD_x)/len(CD_x),3)
+                            
+                            return avgAB_x, avgCD_x
+                        
+                        if test == 'same_y':
+                            avgAB_y = round(sum(AB_y)/len(AB_y),1)   
+                            avgCD_y = round(sum(CD_y)/len(CD_y),1)
+                            return avgAB_y, avgCD_y
+                        
+                        if test == "same_xy" :
+                            avgAB_x = round(sum(AB_x)/len(AB_x),1)
+                            avgAB_y = round(sum(AB_y)/len(AB_y),1)   
+
+                            avgCD_x = round(sum(CD_x)/len(CD_x),1)
+                            avgCD_y = round(sum(CD_y)/len(CD_y),1)
+                            return avgAB_x, avgCD_x, avgAB_y, avgCD_y
+            
+                    mark_scoord = same_coordinate(selected_exercise, int(selected_point_scoord1), int(selected_point_scoord2), int(selected_point_scoord3), int(selected_point_scoord4),required_value)
+                    
+
+                    data[c][0]=[exercise_name, number]
+                    data[c][1]=good_feature
+                    data[c][2]=good_data
+                    data[c][3]=mark_scoord
+
+                    c=c+1
+
                 for i in range (10):
                     if data[i][0] is None or data[i][0]==' ':
                         data[i][3] = ''
@@ -950,7 +1074,6 @@ def give_score():
     last_column_cells = [key for key in table._cells if key[1] == 4]  
     for key in last_column_cells:
         table._cells[key]._width = last_column_width
-
 
     canvas_score = FigureCanvasTkAgg(fig_score, master=frame_3)
     canvas_score.draw()
@@ -991,7 +1114,7 @@ def get_webcam():
                 selected_joint3=file.iloc[i+1,3]
 
         return selected_joint1, selected_joint2, selected_joint3
-                    
+                
     angle1, angle2, angle3 = get_points_of_interest(file_angle)
     
     def calculate_angle(a,b,c):
@@ -1019,9 +1142,12 @@ def get_webcam():
         with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
             while cap.isOpened():
                 _, frame = cap.read()
+
+                flipped_frame = cv2.flip(frame, 1)
                 
                 # Recolor image to RGB
-                image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                
+                image = cv2.cvtColor(flipped_frame, cv2.COLOR_BGR2RGB)
                 image.flags.writeable = False
             
                 # Make detection
@@ -1030,7 +1156,7 @@ def get_webcam():
                 # Recolor back to BGR
                 image.flags.writeable = True
                 image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-                
+           
                 # Extract landmarks
                 try:
                     landmarks = results.pose_landmarks.landmark
@@ -1076,7 +1202,12 @@ def get_webcam():
 
 def close_webcam():
     global state
-    state = 'off'
+    if state == 'on' :
+        state = 'off'
+        return state
+    if state == 'off' :
+        state = 'on'
+        return state
 
 window.combobox_angle = ctk.CTkComboBox(frame_4_left, values=list_of_data_angle, button_color= 'orange',command=select_angle)
 window.combobox_angle.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="ew")
@@ -1084,7 +1215,7 @@ window.combobox_angle.grid(row=0, column=0, padx=10, pady=(10, 10), sticky="ew")
 window.show_webcam = ctk.CTkButton(frame_4_left, text="Open the webcam", command=get_webcam)
 window.show_webcam.grid(row=2, column=0, padx=20, pady=(10, 10))
 
-window.close_webcam = ctk.CTkButton(frame_4_left, text="Close the webcam", command=close_webcam)
+window.close_webcam = ctk.CTkButton(frame_4_left, text="Close/Re-open the webcam", command=close_webcam)
 window.close_webcam.grid(row=3, column=0, padx=20, pady=(10, 10))
 
 ########################################################################################################################################################################
