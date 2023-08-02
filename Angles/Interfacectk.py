@@ -1070,6 +1070,21 @@ def give_score():
     table.set_fontsize(15)  
     table.scale(1, 1.5)
 
+    second_column_width = 0.15 
+    second_column_cells = [key for key in table._cells if key[1] == 1]  
+    for key in second_column_cells:
+        table._cells[key]._width = second_column_width
+
+    data_column_width = 0.4
+    data_column_cells = [key for key in table._cells if key[1] == 2]  
+    for key in data_column_cells:
+        table._cells[key]._width = data_column_width
+
+    mark_column_width = 0.1
+    mark_column_cells = [key for key in table._cells if key[1] == 3]  
+    for key in mark_column_cells:
+        table._cells[key]._width = mark_column_width
+
     last_column_width = 0.3 
     last_column_cells = [key for key in table._cells if key[1] == 4]  
     for key in last_column_cells:
